@@ -284,6 +284,21 @@
                 <button class="toolbar-btn" id="debugBtn" onclick="toggleDebug()"><i class="fas fa-bug"></i></button>
             </div>
         </div>
+
+        <!-- 검색창 -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <div style="position:relative;flex:1;max-width:420px;">
+                <i class="fas fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#adb5bd;font-size:14px;pointer-events:none;"></i>
+                <input type="text" id="searchInput" placeholder="공문제목 또는 제출할 내용으로 검색..."
+                    style="padding:9px 12px 9px 36px;border:1.5px solid #dee2e6;border-radius:8px;font-size:14px;font-family:inherit;width:100%;background:#fafafa;transition:border-color 0.2s;"
+                    oninput="onSearch()" onfocus="this.style.borderColor='#40c057'" onblur="this.style.borderColor='#dee2e6'">
+            </div>
+            <button onclick="clearSearch()" id="clearBtn"
+                style="display:none;background:none;border:1.5px solid #ffc9c9;border-radius:8px;padding:8px 13px;font-size:13px;color:#fa5252;cursor:pointer;font-family:inherit;white-space:nowrap;">
+                <i class="fas fa-xmark"></i> 초기화
+            </button>
+            <span id="searchResult" style="font-size:12px;color:#868e96;white-space:nowrap;"></span>
+        </div>
         <div id="loading"><i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...</div>
         <div class="table-wrap">
             <table>
@@ -360,7 +375,7 @@
        앱 상태
     ══════════════════════════════════════════════ */
     const PAGE_SIZE = 15;
-    let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false;
+    let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false, searchQuery = '';
 
     const $ = id => document.getElementById(id);
     const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
@@ -417,10 +432,35 @@
         $('sortIcon').textContent=sortDir==='asc'?'▲':'▼';
         page=1; render();
     }
+
+    /* ── 검색 ── */
+    function onSearch(){
+        searchQuery = $('searchInput').value.trim();
+        $('clearBtn').style.display = searchQuery ? '' : 'none';
+        page = 1;
+        render();
+    }
+    function clearSearch(){
+        $('searchInput').value = '';
+        searchQuery = '';
+        $('clearBtn').style.display = 'none';
+        $('searchResult').textContent = '';
+        page = 1;
+        render();
+    }
+
     function filtered(){
         let d=[...allData];
         if(filter==='pending') d=d.filter(r=>!r.submitDate||!r.submitDate.trim());
         if(filter==='done')    d=d.filter(r=>r.submitDate&&r.submitDate.trim());
+        // 검색 필터
+        if(searchQuery){
+            const q=searchQuery.toLowerCase();
+            d=d.filter(r=>
+                (r.title||'').toLowerCase().includes(q) ||
+                (r.content||'').toLowerCase().includes(q)
+            );
+        }
         d.sort((a,b)=>{
             const da=new Date(a.dueDate||'9999-12-31'),db=new Date(b.dueDate||'9999-12-31');
             return sortDir==='asc'?da-db:db-da;
@@ -481,6 +521,12 @@
 
         renderPg(totalPg);
         $('pageInfo').textContent=`전체 ${total}건 · ${start+1}–${Math.min(start+PAGE_SIZE,total)}건 표시`;
+        // 검색 결과 안내
+        if(searchQuery){
+            $('searchResult').textContent=`"${searchQuery}" 검색 결과 ${total}건`;
+        } else {
+            $('searchResult').textContent='';
+        }
     }
 
     function renderPg(total){
