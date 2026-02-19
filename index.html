@@ -189,7 +189,7 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyw0iKhWbun_7jJhdLWaJ2a0WACB82eyGy12SwTaZ_vnmQD_WY2m94BRJCLMAYNZKue/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby44PN4vQZmIr-2Ypfr5h1fkOBkSboidSDyX3H5OIU8DaHOAIMNvaVKtySbWQ8F0HEa/exec';
     const form = document.getElementById('scheduleForm');
     
     // 페이지 로드 시 시트 데이터 가져오기 (시각화용)
@@ -234,6 +234,13 @@
             const tbody = document.getElementById('scheduleList');
             tbody.innerHTML = '';
             
+            // 제출마감일(dueDate) 기준으로 오름차순 정렬
+            data.sort((a, b) => {
+                const dateA = new Date(a.dueDate);
+                const dateB = new Date(b.dueDate);
+                return dateA - dateB;
+            });
+            
             data.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -256,4 +263,3 @@
 
 </body>
 </html>
-
