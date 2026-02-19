@@ -178,20 +178,20 @@
 
 <div class="container">
     <div class="card">
-        <h2><i class="fas fa-edit"></i> 구례중 신규 업무 등록</h2>
+        <h2><i class="fas fa-edit"></i> 업무 등록</h2>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
-                    <label for="docNum">공문번호</label>
-                    <input type="text" id="docNum" name="docNum" placeholder="예: 중등교육과-123(2026.2.1.)" required>
+                    <label for="docNum">공문번호 <span style="font-weight:400;color:#ced4da;">(선택)</span></label>
+                    <input type="text" id="docNum" name="docNum" placeholder="예:중등교육과-001(2026.03.01)">
                 </div>
                 <div class="input-group">
-                    <label for="title">공문제목</label>
-                    <input type="text" id="title" name="title" placeholder="제출할 내용을 입력하세요" required>
+                    <label for="title">공문제목 <span style="font-weight:700;color:#fa5252;">*</span></label>
+                    <input type="text" id="title" name="title" placeholder="제출내용을 입력하세요" required>
                 </div>
                 <div class="input-group">
-                    <label for="dueDate">제출마감일</label>
-                    <input type="date" id="dueDate" name="dueDate" required>
+                    <label for="dueDate">제출마감일 <span style="font-weight:400;color:#ced4da;">(선택)</span></label>
+                    <input type="date" id="dueDate" name="dueDate">
                 </div>
             </div>
             <div class="input-group" style="margin-bottom: 20px;">
@@ -504,6 +504,3 @@
 -->
 </body>
 </html>
-
-
-
