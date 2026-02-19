@@ -123,10 +123,27 @@
         tr:last-child td { border-bottom: none; }
 
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-size: 12px;
-            background: #eee;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .status-none {
+            background: #ffe3e3;
+            color: #e03131;
+        }
+
+        .status-none:hover {
+            background: #ffc9c9;
+        }
+
+        .status-done {
+            background: #e7f5ff;
+            color: #1971c2;
+            cursor: default;
         }
 
         #loading {
@@ -187,11 +204,13 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxT_tkTkD3pny2GSEIxa2HwZ_I0UXjakiY3iZPI87g0dXURYxKA30oHhogyhiTVdqHU/exec';
+    // 사용자의 실제 GAS 배포 URL로 변경하세요
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwp9T2Y4Ws23DsDJe1oM0Q-lUt8Ukc0Po22iv0QqPr9gAw_QA_VIfktM3xvm9Gb-N-s/exec';
     const form = document.getElementById('scheduleForm');
     
     window.onload = fetchAndDisplayData;
 
+    // 1. 업무 등록 기능
     form.addEventListener('submit', e => {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
@@ -199,12 +218,12 @@
         btn.innerText = '등록 중...';
 
         const formData = new FormData(form);
-        const data = {};
+        const data = { action: 'create' };
         formData.forEach((value, key) => data[key] = value);
 
+        // POST 요청 (CORS 대응을 위해 redirect: 'follow' 사용)
         fetch(scriptURL, {
             method: 'POST',
-            mode: 'no-cors',
             body: JSON.stringify(data)
         })
         .then(() => {
@@ -217,35 +236,41 @@
         .catch(error => {
             console.error('Error!', error.message);
             btn.disabled = false;
+            alert('등록 중 오류가 발생했습니다.');
         });
     });
 
+    // 2. 데이터 조회 및 출력 기능
     function fetchAndDisplayData() {
         document.getElementById('loading').style.display = 'block';
         
-        // JSONP 방식을 사용하여 CORS 우회
-        const callbackName = 'jsonpCallback_' + Date.now();
-        const script = document.createElement('script');
-        script.src = `${scriptURL}?action=read&callback=${callbackName}`;
-        
-        window[callbackName] = function(data) {
+        fetch(`${scriptURL}?action=read`)
+        .then(res => res.json())
+        .then(data => {
             const tbody = document.getElementById('scheduleList');
             tbody.innerHTML = '';
             
             // 제출마감일(dueDate) 기준으로 오름차순 정렬
             data.sort((a, b) => {
-                const dateA = new Date(a.dueDate);
-                const dateB = new Date(b.dueDate);
+                const dateA = new Date(a.dueDate || '9999-12-31');
+                const dateB = new Date(b.dueDate || '9999-12-31');
                 return dateA - dateB;
             });
             
             data.forEach((row, index) => {
                 const tr = document.createElement('tr');
+                const isSubmitted = row.submitDate && row.submitDate.trim() !== '';
+                
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${row.docNum || ''}</td>
                     <td><strong>${row.title || ''}</strong></td>
-                    <td><span class="status-badge">${row.submitDate || '미제출'}</span></td>
+                    <td>
+                        ${isSubmitted 
+                            ? `<span class="status-badge status-done">${row.submitDate}</span>` 
+                            : `<button class="status-badge status-none" onclick="updateSubmitDate(${row.rowNum}, '${row.title}')">미제출 (클릭하여 입력)</button>`
+                        }
+                    </td>
                     <td style="color: red; font-weight: bold;">${row.dueDate || ''}</td>
                     <td>${row.memo || '-'}</td>
                 `;
@@ -253,17 +278,39 @@
             });
             
             document.getElementById('loading').style.display = 'none';
-            
-            // 정리
-            delete window[callbackName];
-            document.body.removeChild(script);
-        };
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('loading').innerText = '데이터를 불러올 수 없습니다. GAS 배포 설정을 확인하세요.';
+        });
+    }
+
+    // 3. 제출일 업데이트 기능
+    function updateSubmitDate(rowNum, title) {
+        const today = new Date().toISOString().split('T')[0];
+        const submitDate = prompt(`[${title}] 업무의 제출일을 입력하세요 (YYYY-MM-DD)`, today);
         
-        script.onerror = () => {
-            document.getElementById('loading').innerText = '데이터를 불러오는 중 오류가 발생했습니다. GAS 배포 설정을 확인해주세요.';
-        };
-        
-        document.body.appendChild(script);
+        if (!submitDate) return;
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('loading').innerText = '업데이트 중...';
+
+        fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'update',
+                rowNum: rowNum,
+                submitDate: submitDate
+            })
+        })
+        .then(() => {
+            alert('제출일이 업데이트되었습니다.');
+            fetchAndDisplayData();
+        })
+        .catch(err => {
+            alert('업데이트 중 오류가 발생했습니다.');
+            fetchAndDisplayData();
+        });
     }
 </script>
 
