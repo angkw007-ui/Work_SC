@@ -1,37 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스마트 업무 스케줄러</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --bg: #f8f9fa;
+            --text: #2b2d42;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* 상단 입력 폼 스타일 */
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        input, textarea {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: var(--secondary);
+        }
+
+        /* 하단 테이블 스타일 */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #f1f4ff;
+            color: var(--primary);
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #eee;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
 <div class="container">
-    <h2>공용 업무 스케줄러</h2>
-    <form id="scheduleForm">
-        <div class="form-group">
-            <label>공문번호</label>
-            <input type="text" name="docNum" placeholder="예: 2024-001" required>
+    <div class="card">
+        <h2><i class="fas fa-tasks"></i> 공용 업무 스케줄러</h2>
+        <form id="scheduleForm">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>공문번호</label>
+                    <input type="text" name="docNum" placeholder="예: 중등교육과-001(2026.2.12.)" required>
+                </div>
+                <div class="input-group">
+                    <label>공문제목</label>
+                    <input type="text" name="title" placeholder="업무명을 입력하세요" required>
+                </div>
+                <div class="input-group">
+                    <label>제출마감일</label>
+                    <input type="date" name="dueDate" required>
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 20px;">
+                <label>비고</label>
+                <textarea name="memo" rows="2" placeholder="추가 사항을 입력하세요"></textarea>
+            </div>
+            <button type="submit" id="submitBtn">업무 등록하기</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-list-ul"></i> 업무 현황 (마감일 순)</h2>
+        <div id="loading"><i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>연번</th>
+                        <th>공문번호</th>
+                        <th>공문제목</th>
+                        <th>제출일</th>
+                        <th>제출마감일</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleList">
+                    </tbody>
+            </table>
         </div>
-        <div class="form-group">
-            <label>공문제목</label>
-            <input type="text" name="title" placeholder="업무명을 입력하세요" required>
-        </div>
-        <div class="form-group">
-            <label>제출마감일 (정렬 기준)</label>
-            <input type="date" name="dueDate" required>
-        </div>
-        <div class="form-group">
-            <label>비고</label>
-            <textarea name="memo" placeholder="추가 메모"></textarea>
-        </div>
-        <button type="submit" id="submitBtn">스케줄 등록</button>
-    </form>
-    <div id="status"></div>
+    </div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyC_WtD7ysjBYep6rYKMzJISdRJfJlEkmkSvOX9ttEbNKla-Q-abNFK9yqhGMRvM1JJ/exec'; // 배포 후 새로 받은 URL로 교체
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx_lT8KhleCv5fM7bWBmXLfW8dXCyQLL8QzixE_DF3bylCYIdzFoNU4wbkXqqNwbk7u/exec';
     const form = document.getElementById('scheduleForm');
-    const status = document.getElementById('status');
+    
+    // 페이지 로드 시 시트 데이터 가져오기 (시각화용)
+    window.onload = fetchAndDisplayData;
 
     form.addEventListener('submit', e => {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        status.innerText = '등록 중...';
+        btn.innerText = '등록 중...';
 
         const formData = new FormData(form);
         const data = {};
@@ -43,16 +211,48 @@
             body: JSON.stringify(data)
         })
         .then(() => {
-            status.innerText = '등록 완료! 시트에서 마감일을 확인하세요.';
-            status.style.color = 'green';
+            alert('등록되었습니다!');
             form.reset();
             btn.disabled = false;
+            btn.innerText = '업무 등록하기';
+            fetchAndDisplayData(); // 목록 새로고침
         })
-        .catch(() => {
-            status.innerText = '오류가 발생했습니다.';
-            status.style.color = 'red';
+        .catch(error => {
+            console.error('Error!', error.message);
             btn.disabled = false;
         });
     });
+
+    // 구글 시트 데이터를 가져와 테이블에 출력하는 함수
+    function fetchAndDisplayData() {
+        document.getElementById('loading').style.display = 'block';
+        
+        // GET 요청으로 시트 데이터 가져오기
+        fetch(scriptURL + '?action=read')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('scheduleList');
+            tbody.innerHTML = '';
+            
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row.docNum}</td>
+                    <td><strong>${row.title}</strong></td>
+                    <td><span class="status-badge">${row.submitDate || '미제출'}</span></td>
+                    <td style="color: red; font-weight: bold;">${row.dueDate}</td>
+                    <td>${row.memo || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('loading').style.display = 'none';
+        })
+        .catch(() => {
+            document.getElementById('loading').innerText = '데이터를 시트에서 직접 확인해주세요.';
+        });
+    }
 </script>
 
+</body>
+</html>
