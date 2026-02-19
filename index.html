@@ -27,7 +27,6 @@
             margin: 0 auto;
         }
 
-        /* 상단 입력 폼 스타일 */
         .card {
             background: white;
             border-radius: 15px;
@@ -95,7 +94,6 @@
             background: var(--secondary);
         }
 
-        /* 하단 테이블 스타일 */
         .table-container {
             overflow-x: auto;
         }
@@ -189,10 +187,9 @@
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby44PN4vQZmIr-2Ypfr5h1fkOBkSboidSDyX3H5OIU8DaHOAIMNvaVKtySbWQ8F0HEa/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxT_tkTkD3pny2GSEIxa2HwZ_I0UXjakiY3iZPI87g0dXURYxKA30oHhogyhiTVdqHU/exec';
     const form = document.getElementById('scheduleForm');
     
-    // 페이지 로드 시 시트 데이터 가져오기 (시각화용)
     window.onload = fetchAndDisplayData;
 
     form.addEventListener('submit', e => {
@@ -215,7 +212,7 @@
             form.reset();
             btn.disabled = false;
             btn.innerText = '업무 등록하기';
-            fetchAndDisplayData(); // 목록 새로고침
+            fetchAndDisplayData();
         })
         .catch(error => {
             console.error('Error!', error.message);
@@ -223,14 +220,15 @@
         });
     });
 
-    // 구글 시트 데이터를 가져와 테이블에 출력하는 함수
     function fetchAndDisplayData() {
         document.getElementById('loading').style.display = 'block';
         
-        // GET 요청으로 시트 데이터 가져오기
-        fetch(scriptURL + '?action=read')
-        .then(res => res.json())
-        .then(data => {
+        // JSONP 방식을 사용하여 CORS 우회
+        const callbackName = 'jsonpCallback_' + Date.now();
+        const script = document.createElement('script');
+        script.src = `${scriptURL}?action=read&callback=${callbackName}`;
+        
+        window[callbackName] = function(data) {
             const tbody = document.getElementById('scheduleList');
             tbody.innerHTML = '';
             
@@ -245,19 +243,27 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${row.docNum}</td>
-                    <td><strong>${row.title}</strong></td>
+                    <td>${row.docNum || ''}</td>
+                    <td><strong>${row.title || ''}</strong></td>
                     <td><span class="status-badge">${row.submitDate || '미제출'}</span></td>
-                    <td style="color: red; font-weight: bold;">${row.dueDate}</td>
+                    <td style="color: red; font-weight: bold;">${row.dueDate || ''}</td>
                     <td>${row.memo || '-'}</td>
                 `;
                 tbody.appendChild(tr);
             });
+            
             document.getElementById('loading').style.display = 'none';
-        })
-        .catch(() => {
-            document.getElementById('loading').innerText = '데이터를 시트에서 직접 확인해주세요.';
-        });
+            
+            // 정리
+            delete window[callbackName];
+            document.body.removeChild(script);
+        };
+        
+        script.onerror = () => {
+            document.getElementById('loading').innerText = '데이터를 불러오는 중 오류가 발생했습니다. GAS 배포 설정을 확인해주세요.';
+        };
+        
+        document.body.appendChild(script);
     }
 </script>
 
