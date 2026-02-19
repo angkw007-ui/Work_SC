@@ -3,505 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스마트 업무 스케줄러</title>
+    <title>업무 스케줄러 - 구례중학교</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #40c057;
-            --primary-hover: #37b24d;
-            --bg: #f1f3f5;
-            --text: #212529;
-        }
+        :root { --primary: #40c057; --primary-hover: #37b24d; --bg: #f1f3f5; --text: #212529; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px 15px 60px; }
+        .container { max-width: 1200px; margin: 0 auto; }
 
-        body {
-            font-family: 'Pretendard', -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 15px;
-        }
+        /* 헤더 */
+        .page-header { text-align: center; padding: 24px 0 18px; }
+        .page-header h1 { margin: 0; font-size: 26px; color: #2f9e44; font-weight: 800; letter-spacing: -0.5px; }
+        .page-header p { margin: 6px 0 0; color: #868e96; font-size: 14px; }
 
-        .container { max-width: 1000px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.07); padding: 24px; margin-bottom: 20px; }
+        h2 { margin: 0 0 18px 0; font-size: 18px; color: #495057; display: flex; align-items: center; gap: 9px; }
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            padding: 25px;
-            margin-bottom: 20px;
-        }
+        /* 폼 */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 13px; margin-bottom: 13px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group.full { grid-column: 1 / -1; }
+        label { font-size: 12px; font-weight: 700; color: #868e96; text-transform: uppercase; letter-spacing: 0.3px; }
+        input, textarea { padding: 10px 13px; border: 1.5px solid #dee2e6; border-radius: 8px; font-size: 14px; font-family: inherit; transition: border-color 0.2s; width: 100%; background: #fafafa; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); background: #fff; }
+        textarea { resize: vertical; }
+        #submitBtn { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: background 0.2s; margin-top: 4px; }
+        #submitBtn:hover:not(:disabled) { background: var(--primary-hover); }
+        #submitBtn:disabled { background: #adb5bd; cursor: not-allowed; }
 
-        h2 {
-            margin: 0 0 20px 0;
-            font-size: 22px;
-            color: #495057;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .input-group { display: flex; flex-direction: column; gap: 6px; }
-
-        label { font-size: 14px; font-weight: 600; color: #868e96; }
-
-        input, textarea {
-            padding: 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.2s;
-            font-family: inherit;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(64,192,87,0.15);
-        }
-
-        button#submitBtn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            transition: background 0.2s;
-        }
-
-        button#submitBtn:hover:not(:disabled) { background: var(--primary-hover); }
-        button#submitBtn:disabled { background: #adb5bd; cursor: not-allowed; }
-
-        /* 알림 토스트 */
-        #toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: #343a40;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 500;
-            z-index: 9999;
-            transition: transform 0.3s ease;
-            pointer-events: none;
-        }
+        /* 토스트 */
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #343a40; color: white; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 9999; transition: transform 0.3s ease; pointer-events: none; white-space: nowrap; }
         #toast.show { transform: translateX(-50%) translateY(0); }
         #toast.success { background: #40c057; }
         #toast.error { background: #fa5252; }
 
-        /* 디버그 패널 */
-        #debugPanel {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-top: 12px;
-            font-size: 13px;
-            color: #495057;
-            display: none;
-        }
-        #debugPanel.visible { display: block; }
-        #debugLog { max-height: 120px; overflow-y: auto; font-family: monospace; font-size: 12px; }
-        .log-item { padding: 3px 0; border-bottom: 1px solid #e9ecef; }
-        .log-ok { color: #40c057; }
-        .log-err { color: #fa5252; }
-        .log-info { color: #228be6; }
+        /* 툴바 */
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+        .toolbar-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 6px; padding: 6px 13px; font-size: 13px; cursor: pointer; color: #495057; transition: all 0.2s; font-family: inherit; }
+        .toolbar-btn:hover { background: #f1f3f5; border-color: #adb5bd; }
+        .toolbar-btn.active { background: #ebfbee; border-color: var(--primary); color: var(--primary); font-weight: 600; }
 
         /* 테이블 */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
-        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; }
-        td { padding: 12px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+        th { background: #f8f9fa; padding: 10px 11px; text-align: left; border-bottom: 2px solid #e9ecef; color: #495057; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { background: #e9ecef; }
+        td { padding: 10px 11px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
         tr:hover td { background: #f8fff9; }
+        td.content-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            display: inline-block;
-            text-align: center;
-            font-weight: 600;
-        }
-        .status-none { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; }
-        .status-none:hover { background: #ffe3e3; }
-        .status-done { background: #ebfbee; color: #40c057; border-color: #b2f2bb; cursor: default; }
+        /* 배지 */
+        .badge { padding: 4px 9px; border-radius: 5px; font-size: 11px; border: 1px solid transparent; display: inline-block; text-align: center; font-weight: 700; white-space: nowrap; }
+        .badge-pending { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; cursor: pointer; }
+        .badge-pending:hover { background: #ffe3e3; }
+        .badge-done { background: #ebfbee; color: #40c057; border-color: #b2f2bb; cursor: default; }
 
-        #loading {
-            text-align: center;
-            padding: 20px;
-            font-size: 14px;
-            color: #868e96;
-            display: none;
-        }
+        /* 액션 버튼 */
+        .act-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .act-btn.edit { border-color: #74c0fc; color: #228be6; }
+        .act-btn.edit:hover { background: #e7f5ff; }
+        .act-btn.del { border-color: #ffc9c9; color: #fa5252; }
+        .act-btn.del:hover { background: #fff5f5; }
 
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        /* 페이지네이션 */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 16px; flex-wrap: wrap; }
+        .pg-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 6px; padding: 5px 11px; font-size: 13px; cursor: pointer; color: #495057; font-family: inherit; transition: all 0.2s; min-width: 34px; }
+        .pg-btn:hover:not(:disabled) { background: #f1f3f5; }
+        .pg-btn.active { background: var(--primary); border-color: var(--primary); color: white; font-weight: 700; }
+        .pg-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        #pageInfo { text-align: center; font-size: 12px; color: #adb5bd; margin-top: 6px; }
 
-        .toolbar-btn {
-            background: none;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            color: #495057;
-            transition: all 0.2s;
-        }
-        .toolbar-btn:hover { background: #f1f3f5; border-color: #adb5bd; }
-        .toolbar-btn.active { background: #e8f5e9; border-color: var(--primary); color: var(--primary); }
+        /* 모달 */
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 60px; }
+        .modal-bg.open { display: flex; }
+        .modal { background: white; border-radius: 14px; padding: 28px; width: 92%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal h3 { margin: 0 0 20px; font-size: 17px; color: #343a40; display: flex; align-items: center; gap: 8px; }
+        .modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .btn-cancel { background: #f1f3f5; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 600; color: #495057; }
+        .btn-cancel:hover { background: #e9ecef; }
+        .btn-save { background: var(--primary); border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 700; color: white; }
+        .btn-save:hover { background: var(--primary-hover); }
+
+        /* 디버그 */
+        #debugPanel { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px 16px; margin-top: 12px; display: none; }
+        #debugPanel.visible { display: block; }
+        #debugLog { max-height: 100px; overflow-y: auto; font-family: monospace; font-size: 11px; }
+        .log-item { padding: 2px 0; border-bottom: 1px solid #e9ecef; }
+        .log-ok { color: #40c057; } .log-err { color: #fa5252; } .log-info { color: #228be6; }
+        #loading { text-align: center; padding: 20px; font-size: 14px; color: #868e96; display: none; }
+
+        /* 푸터 */
+        footer { text-align: center; padding: 20px 0 10px; font-size: 12px; color: #adb5bd; }
     </style>
 </head>
 <body>
-
 <div id="toast"></div>
 
-<div class="container">
-    <div class="card">
-        <h2><i class="fas fa-edit"></i> 업무 등록</h2>
-        <form id="scheduleForm">
-            <div class="form-grid">
-                <div class="input-group">
-                    <label for="docNum">공문번호 <span style="font-weight:400;color:#ced4da;">(선택)</span></label>
-                    <input type="text" id="docNum" name="docNum" placeholder="예:중등교육과-001(2026.03.01)">
-                </div>
-                <div class="input-group">
-                    <label for="title">공문제목 <span style="font-weight:700;color:#fa5252;">*</span></label>
-                    <input type="text" id="title" name="title" placeholder="제출내용을 입력하세요" required>
-                </div>
-                <div class="input-group">
-                    <label for="dueDate">제출마감일 <span style="font-weight:400;color:#ced4da;">(선택)</span></label>
-                    <input type="date" id="dueDate" name="dueDate">
-                </div>
+<!-- 수정 모달 -->
+<div class="modal-bg" id="editModal">
+    <div class="modal">
+        <h3><i class="fas fa-pen" style="color:var(--primary);"></i> 업무 수정</h3>
+        <input type="hidden" id="eRowNum">
+        <div class="form-grid">
+            <div class="input-group">
+                <label>공문번호 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <input type="text" id="eDocNum" placeholder="예: 중등교육과-001">
             </div>
-            <div class="input-group" style="margin-bottom: 20px;">
-                <label for="memo">비고</label>
-                <textarea id="memo" name="memo" rows="2" placeholder="메모할 사항이 있으면 입력하세요"></textarea>
+            <div class="input-group">
+                <label>공문제목 <span style="color:#fa5252;">*</span></label>
+                <input type="text" id="eTitle" placeholder="제목 입력">
             </div>
-            <button type="submit" id="submitBtn">
-                <i class="fas fa-plus-circle"></i> 업무 등록하기
-            </button>
-        </form>
-
-        <!-- 디버그 패널 -->
-        <div id="debugPanel">
-            <strong>🔍 통신 로그</strong>
-            <div id="debugLog"></div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="toolbar">
-            <h2 style="margin:0;"><i class="fas fa-list-check"></i> 업무 추진 현황 (마감 순)</h2>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="toolbar-btn" id="filterAll" onclick="setFilter('all')">전체</button>
-                <button class="toolbar-btn" id="filterPending" onclick="setFilter('pending')">미제출</button>
-                <button class="toolbar-btn" id="filterDone" onclick="setFilter('done')">완료</button>
-                <button class="toolbar-btn" onclick="fetchAndDisplayData()"><i class="fas fa-rotate-right"></i> 새로고침</button>
-                <button class="toolbar-btn" id="debugBtn" onclick="toggleDebug()"><i class="fas fa-bug"></i> 디버그</button>
+            <div class="input-group">
+                <label>제출마감일 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <input type="date" id="eDueDate">
+            </div>
+            <div class="input-group">
+                <label>제출일(완료) <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <input type="date" id="eSubmitDate">
             </div>
         </div>
-        <div id="loading"><i class="fas fa-spinner fa-spin"></i> 서버에서 데이터를 가져오고 있습니다...</div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>연번</th>
-                        <th>공문번호</th>
-                        <th>공문제목</th>
-                        <th>제출일(완료)</th>
-                        <th>마감기한</th>
-                        <th>비고</th>
-                    </tr>
-                </thead>
-                <tbody id="scheduleList"></tbody>
-            </table>
+        <div class="input-group" style="margin-top:12px;">
+            <label>제출할 내용</label>
+            <textarea id="eContent" rows="2" placeholder="제출할 내용 입력"></textarea>
+        </div>
+        <div class="input-group" style="margin-top:12px;">
+            <label>비고</label>
+            <textarea id="eMemo" rows="2" placeholder="메모"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">취소</button>
+            <button class="btn-save" onclick="saveEdit()"><i class="fas fa-save"></i> 저장</button>
         </div>
     </div>
 </div>
 
+<div class="container">
+    <!-- 헤더 -->
+    <div class="page-header">
+        <h1><i class="fas fa-calendar-check" style="margin-right:8px;"></i>업무 추진 스케줄러</h1>
+        <p>구례중학교 업무 관리 시스템</p>
+    </div>
+
+    <!-- 등록 카드 -->
+    <div class="card">
+        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
+        <form id="scheduleForm">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>공문번호 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                    <input type="text" id="docNum" name="docNum" placeholder="예: 중등교육과-001">
+                </div>
+                <div class="input-group">
+                    <label>공문제목 <span style="color:#fa5252;">*</span></label>
+                    <input type="text" id="title" name="title" placeholder="공문 제목 입력" required>
+                </div>
+                <div class="input-group">
+                    <label>제출마감일 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                    <input type="date" id="dueDate" name="dueDate">
+                </div>
+                <div class="input-group">
+                    <label>비고 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                    <input type="text" id="memo" name="memo" placeholder="메모">
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom:14px;">
+                <label>제출할 내용 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <textarea id="content" name="content" rows="2" placeholder="제출할 내용을 입력하세요"></textarea>
+            </div>
+            <button type="submit" id="submitBtn"><i class="fas fa-plus-circle"></i> 업무 등록하기</button>
+        </form>
+        <div id="debugPanel"><strong style="font-size:12px;">🔍 통신 로그</strong><div id="debugLog"></div></div>
+    </div>
+
+    <!-- 현황 카드 -->
+    <div class="card">
+        <div class="toolbar">
+            <h2 style="margin:0;"><i class="fas fa-list-check" style="color:var(--primary);"></i> 업무 추진 현황</h2>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="toolbar-btn active" id="filterAll" onclick="setFilter('all')">전체</button>
+                <button class="toolbar-btn" id="filterPending" onclick="setFilter('pending')">미제출</button>
+                <button class="toolbar-btn" id="filterDone" onclick="setFilter('done')">완료</button>
+                <button class="toolbar-btn" onclick="fetchData()"><i class="fas fa-rotate-right"></i> 새로고침</button>
+                <button class="toolbar-btn" id="debugBtn" onclick="toggleDebug()"><i class="fas fa-bug"></i></button>
+            </div>
+        </div>
+        <div id="loading"><i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:42px;text-align:center;">#</th>
+                        <th>공문번호</th>
+                        <th>공문제목</th>
+                        <th style="min-width:160px;">제출할 내용</th>
+                        <th class="sortable" id="thDue" onclick="toggleSort()">
+                            제출마감일 <span id="sortIcon">▲</span>
+                        </th>
+                        <th>제출일(완료)</th>
+                        <th>비고</th>
+                        <th style="width:90px;text-align:center;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="tBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+        <div id="pageInfo"></div>
+    </div>
+</div>
+
+<footer>
+    Developed by Choi Gwang-cheol of Gurye Middle School in 2026. All rights reserved.
+</footer>
+
 <script>
-    // ✅ Apps Script 배포 URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzyDszybFgDAklxKxeZQqQF675t8Z-JfuteCSamhYrXeiNLauisOrr7iVy3HkuuYh_h/exec';
+    // ★ 배포 URL (본인 것으로 유지)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdfb5_IhtPEl9HAQ-VxBc8Gysbu5C1_Q39aeZpQktD6BaGtIZc8jJ373GDIBAU-R2R/exec';
 
-    let allData = [];
-    let currentFilter = 'all';
-    let debugVisible = false;
+    const PAGE_SIZE = 10;
+    let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false;
 
-    // ── 토스트 알림 ──────────────────────────────────────────
-    function showToast(msg, type = '') {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
+    /* ── 유틸 ───────────────────────────────── */
+    const $ = id => document.getElementById(id);
+    const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
+
+    function toast(msg, type='') {
+        const t = $('toast'); t.textContent = msg;
         t.className = type ? `show ${type}` : 'show';
-        setTimeout(() => { t.className = ''; }, 3000);
+        clearTimeout(t._t); t._t = setTimeout(()=>t.className='', 3200);
     }
-
-    // ── 디버그 로그 ──────────────────────────────────────────
-    function log(msg, type = 'info') {
-        const el = document.getElementById('debugLog');
+    function log(msg, type='info') {
         const d = document.createElement('div');
         d.className = `log-item log-${type}`;
         d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        el.prepend(d);
-        console.log(`[Scheduler] ${msg}`);
+        $('debugLog').prepend(d);
     }
-
     function toggleDebug() {
-        debugVisible = !debugVisible;
-        document.getElementById('debugPanel').classList.toggle('visible', debugVisible);
-        document.getElementById('debugBtn').classList.toggle('active', debugVisible);
+        dbgVisible=!dbgVisible;
+        $('debugPanel').classList.toggle('visible',dbgVisible);
+        $('debugBtn').classList.toggle('active',dbgVisible);
     }
+    function isOk(r){ return r&&(r.status==='success'||r.result==='success'||r.ok===true); }
 
-    // ── JSONP 통신 (타임아웃 추가) ───────────────────────────
-    function jsonpRequest(params, timeoutMs = 15000) {
-        return new Promise((resolve, reject) => {
-            const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-
-            const timer = setTimeout(() => {
-                cleanup();
-                reject(new Error('요청 시간 초과 (15초). 서버 응답이 없습니다.'));
-            }, timeoutMs);
-
-            function cleanup() {
-                clearTimeout(timer);
-                delete window[callbackName];
-                if (script.parentNode) document.body.removeChild(script);
-            }
-
-            window[callbackName] = function(data) {
-                cleanup();
-                resolve(data);
-            };
-
-            const script = document.createElement('script');
-            let url = scriptURL + '?callback=' + callbackName;
-            for (const key in params) {
-                url += `&${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
-            }
-            log(`요청: action=${params.action}`, 'info');
-            script.src = url;
-            script.onerror = () => {
-                cleanup();
-                reject(new Error('스크립트 로드 실패. URL 또는 네트워크를 확인하세요.'));
-            };
-            document.body.appendChild(script);
+    /* ── JSONP ──────────────────────────────── */
+    function rpc(params, ms=15000) {
+        return new Promise((res,rej)=>{
+            const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+            const timer=setTimeout(()=>{cleanup();rej(new Error('시간 초과'));},ms);
+            function cleanup(){clearTimeout(timer);delete window[cb];if(sc.parentNode)document.body.removeChild(sc);}
+            window[cb]=d=>{cleanup();res(d);};
+            const sc=document.createElement('script');
+            let url=SCRIPT_URL+'?callback='+cb;
+            for(const k in params) url+=`&${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`;
+            log(`→ ${params.action}`,'info');
+            sc.src=url; sc.onerror=()=>{cleanup();rej(new Error('로드 실패'));};
+            document.body.appendChild(sc);
         });
     }
 
-    // ── 필터 ─────────────────────────────────────────────────
-    function setFilter(f) {
-        currentFilter = f;
-        ['All','Pending','Done'].forEach(k => {
-            document.getElementById('filter'+k).classList.remove('active');
+    /* ── 필터 / 정렬 ────────────────────────── */
+    function setFilter(f){
+        filter=f; page=1;
+        ['All','Pending','Done'].forEach(k=>$('filter'+k).classList.remove('active'));
+        $('filter'+f[0].toUpperCase()+f.slice(1)).classList.add('active');
+        render();
+    }
+    function toggleSort(){
+        sortDir=sortDir==='asc'?'desc':'asc';
+        $('sortIcon').textContent=sortDir==='asc'?'▲':'▼';
+        page=1; render();
+    }
+    function filtered(){
+        let d=[...allData];
+        if(filter==='pending') d=d.filter(r=>!r.submitDate||!r.submitDate.trim());
+        if(filter==='done')    d=d.filter(r=>r.submitDate&&r.submitDate.trim());
+        d.sort((a,b)=>{
+            const da=new Date(a.dueDate||'9999-12-31'),db=new Date(b.dueDate||'9999-12-31');
+            return sortDir==='asc'?da-db:db-da;
         });
-        document.getElementById('filter' + f.charAt(0).toUpperCase() + f.slice(1)).classList.add('active');
-        renderTable(allData);
+        return d;
     }
 
-    // ── 테이블 렌더링 ─────────────────────────────────────────
-    function renderTable(data) {
-        const tbody = document.getElementById('scheduleList');
-        tbody.innerHTML = '';
+    /* ── 렌더 ───────────────────────────────── */
+    function render(){
+        const tbody=$('tBody'); tbody.innerHTML='';
+        const fd=filtered(), total=fd.length;
+        const totalPg=Math.max(1,Math.ceil(total/PAGE_SIZE));
+        if(page>totalPg) page=totalPg;
+        const start=(page-1)*PAGE_SIZE;
+        const chunk=fd.slice(start,start+PAGE_SIZE);
 
-        let filtered = data;
-        if (currentFilter === 'pending') filtered = data.filter(r => !r.submitDate || r.submitDate.toString().trim() === '');
-        if (currentFilter === 'done')    filtered = data.filter(r => r.submitDate && r.submitDate.toString().trim() !== '');
-
-        if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#adb5bd;padding:30px;">
-                <i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+        if(total===0){
+            tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:#adb5bd;padding:36px;">
+                <i class="fas fa-inbox" style="font-size:28px;display:block;margin-bottom:10px;"></i>
                 표시할 업무가 없습니다.</td></tr>`;
-            return;
+            $('pagination').innerHTML=''; $('pageInfo').textContent=''; return;
         }
 
-        filtered.forEach((row, index) => {
-            const tr = document.createElement('tr');
-            const isSubmitted = row.submitDate && row.submitDate.toString().trim() !== '';
-
-            // 마감 임박 강조 (오늘 기준 3일 이내, 미완료)
-            let dueCss = '';
-            if (!isSubmitted && row.dueDate) {
-                const diff = (new Date(row.dueDate) - new Date()) / 86400000;
-                if (diff < 0)       dueCss = 'color:#e03131;font-weight:bold;'; // 초과
-                else if (diff <= 3) dueCss = 'color:#f76707;font-weight:bold;'; // 임박
-                else                dueCss = 'color:#e03131;font-weight:bold;';
+        chunk.forEach((row,i)=>{
+            const tr=document.createElement('tr');
+            const done=row.submitDate&&row.submitDate.trim();
+            let dueCss='';
+            if(!done&&row.dueDate){
+                const diff=(new Date(row.dueDate)-new Date())/86400000;
+                dueCss=diff<0?'color:#e03131;font-weight:700;':diff<=3?'color:#f76707;font-weight:700;':'color:#495057;';
             }
-
-            tr.innerHTML = `
-                <td style="color:#adb5bd;">${index + 1}</td>
-                <td style="font-size:13px;">${row.docNum || ''}</td>
-                <td><strong>${row.title || ''}</strong></td>
-                <td>
-                    ${isSubmitted
-                        ? `<span class="status-badge status-done"><i class="fas fa-check"></i> ${row.submitDate}</span>`
-                        : `<button class="status-badge status-none" onclick="updateDate(${row.rowNum}, '${(row.title||'').replace(/'/g,"\\'")}')">
-                             <i class="fas fa-clock"></i> 미제출 (입력)
-                           </button>`
-                    }
+            tr.innerHTML=`
+                <td style="color:#adb5bd;text-align:center;">${start+i+1}</td>
+                <td style="font-size:12px;color:#868e96;">${safe(row.docNum)||'-'}</td>
+                <td><strong>${safe(row.title)}</strong></td>
+                <td class="content-cell" title="${safe(row.content)||''}">${safe(row.content)||'-'}</td>
+                <td style="${dueCss}">${row.dueDate||'-'}</td>
+                <td>${done
+                    ?`<span class="badge badge-done"><i class="fas fa-check"></i> ${row.submitDate}</span>`
+                    :`<button class="badge badge-pending" onclick="markDone(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-clock"></i> 미제출</button>`}
                 </td>
-                <td style="${dueCss}">${row.dueDate || ''}</td>
-                <td style="color:#868e96;font-size:12px;">${row.memo || '-'}</td>
-            `;
+                <td style="color:#868e96;font-size:12px;">${safe(row.memo)||'-'}</td>
+                <td style="text-align:center;white-space:nowrap;">
+                    <button class="act-btn edit" onclick="openEdit(${row.rowNum})"><i class="fas fa-pen"></i></button>
+                    <button class="act-btn del" style="margin-left:4px;" onclick="delRow(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-trash"></i></button>
+                </td>`;
             tbody.appendChild(tr);
         });
+
+        renderPg(totalPg);
+        $('pageInfo').textContent=`전체 ${total}건 · ${start+1}–${Math.min(start+PAGE_SIZE,total)}건 표시`;
     }
 
-    // ── 데이터 조회 ───────────────────────────────────────────
-    async function fetchAndDisplayData() {
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
-        log('데이터 조회 시작...', 'info');
-
-        try {
-            const data = await jsonpRequest({ action: 'read' });
-            log(`데이터 수신: ${JSON.stringify(data).slice(0, 80)}...`, 'ok');
-
-            // 응답이 배열인지 확인
-            if (!Array.isArray(data)) {
-                throw new Error(`응답이 배열이 아닙니다: ${JSON.stringify(data)}`);
-            }
-
-            // 마감일 오름차순 정렬
-            data.sort((a, b) => new Date(a.dueDate || '9999-12-31') - new Date(b.dueDate || '9999-12-31'));
-            allData = data;
-            renderTable(allData);
-            log(`총 ${data.length}건 렌더링 완료`, 'ok');
-
-        } catch (e) {
-            log(`조회 실패: ${e.message}`, 'err');
-            document.getElementById('scheduleList').innerHTML =
-                `<tr><td colspan="6" style="text-align:center;color:#fa5252;padding:20px;">
-                    <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br>
-                    <small style="color:#adb5bd;">${e.message}</small><br>
-                    <small style="color:#adb5bd;">Apps Script 배포 설정을 확인하세요 (아래 체크리스트 참고)</small>
-                </td></tr>`;
-            showToast('데이터 로드 실패: ' + e.message, 'error');
-            // 실패시 디버그 패널 자동 열기
-            if (!debugVisible) toggleDebug();
-        } finally {
-            loading.style.display = 'none';
+    function renderPg(total){
+        const c=$('pagination'); c.innerHTML='';
+        if(total<=1) return;
+        const btn=(lbl,p,active,dis)=>{
+            const b=document.createElement('button');
+            b.className='pg-btn'+(active?' active':''); b.disabled=!!dis; b.innerHTML=lbl;
+            if(!dis&&!active) b.onclick=()=>{page=p;render();};
+            return b;
+        };
+        c.appendChild(btn('<i class="fas fa-angle-left"></i>',page-1,false,page===1));
+        let ps=[];
+        if(total<=7){for(let i=1;i<=total;i++)ps.push(i);}
+        else{
+            ps=[1];
+            if(page>3)ps.push('…');
+            for(let i=Math.max(2,page-1);i<=Math.min(total-1,page+1);i++)ps.push(i);
+            if(page<total-2)ps.push('…');
+            ps.push(total);
         }
+        ps.forEach(p=>{
+            if(p==='…'){const s=document.createElement('span');s.style.cssText='padding:0 4px;color:#adb5bd;font-size:13px;';s.textContent='…';c.appendChild(s);}
+            else c.appendChild(btn(p,p,p===page));
+        });
+        c.appendChild(btn('<i class="fas fa-angle-right"></i>',page+1,false,page===total));
     }
 
-    // ── 업무 등록 ─────────────────────────────────────────────
-    document.getElementById('scheduleForm').onsubmit = async function(e) {
+    /* ── 데이터 로드 ─────────────────────────── */
+    async function fetchData(){
+        $('loading').style.display='block';
+        try{
+            const data=await rpc({action:'read'});
+            if(!Array.isArray(data)) throw new Error('배열이 아닌 응답');
+            allData=data; log(`${data.length}건 수신`,'ok'); render();
+        }catch(e){
+            log('조회 실패: '+e.message,'err');
+            $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
+                <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br><small style="color:#adb5bd;">${e.message}</small></td></tr>`;
+            toast('데이터 로드 실패','error');
+            if(!dbgVisible)toggleDebug();
+        }finally{$('loading').style.display='none';}
+    }
+
+    /* ── 등록 ───────────────────────────────── */
+    $('scheduleForm').onsubmit=async function(e){
         e.preventDefault();
-
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 서버에 저장 중...';
-
-        const formData = new FormData(e.target);
-        const params = { action: 'create' };
-        formData.forEach((value, key) => { params[key] = value; });
-
-        log(`등록 시도: ${JSON.stringify(params)}`, 'info');
-
-        try {
-            const res = await jsonpRequest(params);
-            log(`등록 응답: ${JSON.stringify(res)}`, 'ok');
-
-            // ✅ 수정: 응답 형태가 다양할 수 있으므로 유연하게 처리
-            const isSuccess = res && (
-                res.status === 'success' ||
-                res.result === 'success' ||
-                res.message === 'success' ||
-                res.ok === true
-            );
-
-            if (isSuccess) {
-                showToast('✅ 업무가 성공적으로 등록되었습니다!', 'success');
-                e.target.reset();
-                await fetchAndDisplayData();
-            } else {
-                // 서버가 응답했지만 성공 신호가 없는 경우 — 그래도 새로고침 시도
-                log(`경고: 예상치 못한 응답 형태 → ${JSON.stringify(res)}`, 'err');
-                showToast('등록됐을 수 있습니다. 목록을 확인하세요.', '');
-                e.target.reset();
-                await fetchAndDisplayData();
-            }
-        } catch (err) {
-            log(`등록 실패: ${err.message}`, 'err');
-            showToast('등록 실패: ' + err.message, 'error');
-            if (!debugVisible) toggleDebug();
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-plus-circle"></i> 업무 등록하기';
-        }
+        const btn=$('submitBtn'); btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 저장 중...';
+        const p={action:'create'};
+        new FormData(e.target).forEach((v,k)=>p[k]=v);
+        try{
+            const r=await rpc(p);
+            toast(isOk(r)?'✅ 등록되었습니다!':'등록됐을 수 있습니다.',isOk(r)?'success':'');
+            e.target.reset(); await fetchData();
+        }catch(err){toast('등록 실패: '+err.message,'error');if(!dbgVisible)toggleDebug();}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> 업무 등록하기';}
     };
 
-    // ── 제출일 업데이트 ───────────────────────────────────────
-    async function updateDate(rowNum, title) {
-        const today = new Date().toISOString().split('T')[0];
-        const date = prompt(`[${title}] 제출 완료 날짜를 입력하세요 (YYYY-MM-DD)`, today);
-        if (!date) return;
-
-        // 날짜 형식 간단 검증
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            showToast('날짜 형식이 올바르지 않습니다. (예: 2026-01-15)', 'error');
-            return;
-        }
-
-        log(`업데이트 시도: rowNum=${rowNum}, date=${date}`, 'info');
-        try {
-            const res = await jsonpRequest({ action: 'update', rowNum: rowNum, submitDate: date });
-            log(`업데이트 응답: ${JSON.stringify(res)}`, 'ok');
-
-            const isSuccess = res && (
-                res.status === 'success' ||
-                res.result === 'success' ||
-                res.ok === true
-            );
-
-            if (isSuccess) {
-                showToast('✅ 제출 날짜가 기록되었습니다!', 'success');
-            } else {
-                showToast('처리됐을 수 있습니다. 목록을 확인하세요.', '');
-            }
-            await fetchAndDisplayData();
-        } catch (err) {
-            log(`업데이트 실패: ${err.message}`, 'err');
-            showToast('업데이트 실패: ' + err.message, 'error');
-            if (!debugVisible) toggleDebug();
-        }
+    /* ── 제출일 입력 ─────────────────────────── */
+    async function markDone(rowNum,title){
+        const today=new Date().toISOString().split('T')[0];
+        const date=prompt(`[${title}]\n제출 완료 날짜 입력 (YYYY-MM-DD)`,today);
+        if(!date) return;
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast('날짜 형식 오류 (예: 2026-01-15)','error');return;}
+        try{
+            const r=await rpc({action:'update',rowNum,submitDate:date});
+            toast(isOk(r)?'✅ 제출일 기록!':'처리됐을 수 있습니다.',isOk(r)?'success':'');
+            await fetchData();
+        }catch(err){toast('업데이트 실패','error');}
     }
 
-    // ── 초기화 ────────────────────────────────────────────────
-    document.getElementById('filterAll').classList.add('active');
-    window.onload = fetchAndDisplayData;
-</script>
+    /* ── 수정 모달 ──────────────────────────── */
+    function openEdit(rowNum){
+        const row=allData.find(r=>r.rowNum===rowNum); if(!row) return;
+        $('eRowNum').value=rowNum;
+        $('eDocNum').value=row.docNum||'';
+        $('eTitle').value=row.title||'';
+        $('eDueDate').value=row.dueDate||'';
+        $('eSubmitDate').value=row.submitDate||'';
+        $('eContent').value=row.content||'';
+        $('eMemo').value=row.memo||'';
+        $('editModal').classList.add('open');
+    }
+    function closeModal(){ $('editModal').classList.remove('open'); }
+    $('editModal').addEventListener('click',e=>{ if(e.target===$('editModal')) closeModal(); });
 
-<!-- ✅ Apps Script 체크리스트 (개발자용 메모) -->
-<!--
-[Apps Script 배포 설정 확인사항]
-1. 배포 > 웹 앱으로 배포 > 액세스: "모든 사용자" (익명 포함) 로 설정되어 있어야 함
-2. 코드 수정 후 반드시 "새 배포"가 아닌 "기존 배포 업데이트" 해야 URL이 유지됨
-3. doGet(e) 함수에서 ContentService.createTextOutput(
-     e.parameter.callback + '(' + JSON.stringify(result) + ')'
-   ).setMimeType(ContentService.MimeType.JAVASCRIPT) 형태로 반환해야 함
-4. 응답 JSON에 { status: "success" } 가 포함되어 있는지 확인
-5. 스프레드시트 권한: Apps Script가 해당 시트에 접근 권한이 있어야 함
--->
+    async function saveEdit(){
+        const title=$('eTitle').value.trim();
+        if(!title){toast('공문제목은 필수입니다.','error');return;}
+        const p={action:'edit',rowNum:$('eRowNum').value,docNum:$('eDocNum').value.trim(),
+            title,dueDate:$('eDueDate').value,submitDate:$('eSubmitDate').value,
+            content:$('eContent').value.trim(),memo:$('eMemo').value.trim()};
+        closeModal();
+        try{
+            const r=await rpc(p);
+            toast(isOk(r)?'✅ 수정되었습니다!':'수정됐을 수 있습니다.',isOk(r)?'success':'');
+            await fetchData();
+        }catch(err){toast('수정 실패: '+err.message,'error');}
+    }
+
+    /* ── 삭제 ───────────────────────────────── */
+    async function delRow(rowNum,title){
+        if(!confirm(`[${title}]\n삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+        try{
+            const r=await rpc({action:'delete',rowNum});
+            toast(isOk(r)?'🗑️ 삭제되었습니다.':'삭제됐을 수 있습니다.',isOk(r)?'success':'');
+            await fetchData();
+        }catch(err){toast('삭제 실패','error');}
+    }
+
+    window.onload=fetchData;
+</script>
 </body>
 </html>
-
