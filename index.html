@@ -518,7 +518,10 @@
         try{
             const data=await rpc({action:'read'});
             if(!Array.isArray(data)) throw new Error('배열이 아닌 응답');
-            allData=data; log(`${data.length}건 수신`,'ok'); render();
+            allData=data; log(`${data.length}건 수신`,'ok');
+            const totalPg=Math.max(1,Math.ceil(filtered().length/PAGE_SIZE));
+            page=totalPg;
+            render();
         }catch(e){
             log('조회 실패: '+e.message,'err');
             $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
