@@ -7,7 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #40c057; /* 연한 녹색 */
+            --primary: #40c057;
             --primary-hover: #37b24d;
             --bg: #f1f3f5;
             --text: #212529;
@@ -18,60 +18,59 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 10px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
-        /* 상단 입력 폼 콤팩트 스타일 */
         .card {
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
         }
 
         h2 {
-            margin: 0 0 15px 0;
-            font-size: 20px;
+            margin: 0 0 20px 0;
+            font-size: 22px;
             color: #495057;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
         }
 
         label {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: #868e96;
         }
 
         input, textarea {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 15px;
             transition: border-color 0.2s;
         }
 
-        input:focus, textarea:focus {
+        input:focus {
             outline: none;
             border-color: var(--primary);
         }
@@ -80,105 +79,70 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            font-size: 15px;
+            font-size: 16px;
             transition: background 0.2s;
         }
 
-        button#submitBtn:hover {
-            background: var(--primary-hover);
-        }
+        button#submitBtn:hover { background: var(--primary-hover); }
 
-        /* 테이블 콤팩트 스타일 */
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        th {
-            background: #f8f9fa;
-            color: #495057;
-            padding: 10px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #f1f3f5;
-        }
+        /* 테이블 스타일 */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; }
+        td { padding: 12px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
 
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
             cursor: pointer;
-            border: none;
+            border: 1px solid transparent;
             display: inline-block;
-        }
-
-        .status-none {
-            background: #fff5f5;
-            color: #fa5252;
-            border: 1px solid #ffc9c9;
-        }
-
-        .status-done {
-            background: #ebfbee;
-            color: #40c057;
-            border: 1px solid #b2f2bb;
-            cursor: default;
-        }
-
-        #loading {
             text-align: center;
-            padding: 10px;
-            font-size: 13px;
-            color: #868e96;
-            display: none;
         }
+
+        .status-none { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; }
+        .status-done { background: #ebfbee; color: #40c057; border-color: #b2f2bb; cursor: default; }
+
+        #loading { text-align: center; padding: 20px; font-size: 14px; color: #868e96; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2><i class="fas fa-edit"></i> 업무 등록</h2>
+        <h2><i class="fas fa-edit"></i> 신규 업무 등록</h2>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
                     <label>공문번호</label>
-                    <input type="text" name="docNum" placeholder="예: 중등-001" required>
+                    <input type="text" name="docNum" placeholder="예: 초등-2026-001" required>
                 </div>
                 <div class="input-group">
                     <label>공문제목</label>
-                    <input type="text" name="title" placeholder="업무명 입력" required>
+                    <input type="text" name="title" placeholder="업무 내용을 입력하세요" required>
                 </div>
                 <div class="input-group">
                     <label>제출마감일</label>
                     <input type="date" name="dueDate" required>
                 </div>
             </div>
-            <div class="input-group" style="margin-bottom: 15px;">
+            <div class="input-group" style="margin-bottom: 20px;">
                 <label>비고</label>
-                <textarea name="memo" rows="1" placeholder="추가 사항"></textarea>
+                <textarea name="memo" rows="1" placeholder="메모할 사항이 있으면 입력하세요"></textarea>
             </div>
             <button type="submit" id="submitBtn">업무 등록하기</button>
         </form>
     </div>
 
     <div class="card">
-        <h2><i class="fas fa-list"></i> 업무 현황 (마감일 순)</h2>
-        <div id="loading"><i class="fas fa-spinner fa-spin"></i> 데이터를 불러오는 중...</div>
+        <h2><i class="fas fa-list-check"></i> 업무 추진 현황 (마감 순)</h2>
+        <div id="loading"><i class="fas fa-spinner fa-spin"></i> 서버에서 데이터를 가져오고 있습니다...</div>
         <div class="table-container">
             <table>
                 <thead>
@@ -186,8 +150,8 @@
                         <th>연번</th>
                         <th>공문번호</th>
                         <th>공문제목</th>
-                        <th>제출일</th>
-                        <th>마감일</th>
+                        <th>제출일(완료)</th>
+                        <th>마감기한</th>
                         <th>비고</th>
                     </tr>
                 </thead>
@@ -198,109 +162,14 @@
 </div>
 
 <script>
-    // [중요] 여기에 본인의 구글 앱스 스크립트 웹 앱 URL을 넣으세요
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx4BGr7inLbWWCimWWoup1L0SHVVfcq2WnZKDa7JE3xk0yovi5q57T2Y9wAyqgGFwb7/exec';
+    // 제공해주신 최신 배포 URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxdfb5_IhtPEl9HAQ-VxBc8Gysbu5C1_Q39aeZpQktD6BaGtIZc8jJ373GDIBAU-R2R/exec';
     
     window.onload = fetchAndDisplayData;
 
-    // JSONP 요청 함수 (CORS 완벽 해결용)
+    // JSONP 통신 함수
     function jsonpRequest(params) {
         return new Promise((resolve, reject) => {
             const callbackName = 'jsonp_' + Math.round(100000 * Math.random());
             window[callbackName] = function(data) {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                resolve(data);
-            };
-
-            const script = document.createElement('script');
-            let url = scriptURL + (scriptURL.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
-            for (let key in params) {
-                url += `&${key}=${encodeURIComponent(params[key])}`;
-            }
-            script.src = url;
-            script.onerror = reject;
-            document.body.appendChild(script);
-        });
-    }
-
-    // 1. 데이터 조회
-    async function fetchAndDisplayData() {
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
-        try {
-            const data = await jsonpRequest({ action: 'read' });
-            const tbody = document.getElementById('scheduleList');
-            tbody.innerHTML = '';
-            
-            // 마감일 순 정렬
-            data.sort((a, b) => new Date(a.dueDate || '9999-12-31') - new Date(b.dueDate || '9999-12-31'));
-            
-            data.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                const isSubmitted = row.submitDate && row.submitDate.toString().trim() !== '';
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${row.docNum || ''}</td>
-                    <td><strong>${row.title || ''}</strong></td>
-                    <td>
-                        ${isSubmitted 
-                            ? `<span class="status-badge status-done">${row.submitDate}</span>` 
-                            : `<button class="status-badge status-none" onclick="updateDate(${row.rowNum}, '${row.title}')">미제출 (입력)</button>`
-                        }
-                    </td>
-                    <td style="color: #e03131; font-weight: bold;">${row.dueDate || ''}</td>
-                    <td>${row.memo || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } catch (e) {
-            console.error(e);
-            alert('데이터를 불러오지 못했습니다. URL과 GAS 설정을 확인하세요.');
-        } finally {
-            loading.style.display = 'none';
-        }
-    }
-
-    // 2. 업무 등록
-    document.getElementById('scheduleForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerText = '등록 중...';
-
-        const formData = new FormData(e.target);
-        const params = { action: 'create' };
-        formData.forEach((value, key) => params[key] = value);
-
-        try {
-            await jsonpRequest(params);
-            alert('등록되었습니다!');
-            e.target.reset();
-            fetchAndDisplayData();
-        } catch (e) {
-            alert('등록 실패. GAS 설정을 확인하세요.');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = '업무 등록하기';
-        }
-    };
-
-    // 3. 제출일 업데이트
-    async function updateDate(rowNum, title) {
-        const date = prompt(`[${title}] 제출일을 입력하세요 (YYYY-MM-DD)`, new Date().toISOString().split('T')[0]);
-        if (!date) return;
-
-        try {
-            await jsonpRequest({ action: 'update', rowNum: rowNum, submitDate: date });
-            alert('업데이트 완료!');
-            fetchAndDisplayData();
-        } catch (e) {
-            alert('업데이트 실패');
-        }
-    }
-</script>
-
-</body>
-</html>
-
+                delete
