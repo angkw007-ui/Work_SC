@@ -21,10 +21,7 @@
             padding: 15px;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1000px; margin: 0 auto; }
 
         .card {
             background: white;
@@ -50,17 +47,9 @@
             margin-bottom: 15px;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
 
-        label {
-            font-size: 14px;
-            font-weight: 600;
-            color: #868e96;
-        }
+        label { font-size: 14px; font-weight: 600; color: #868e96; }
 
         input, textarea {
             padding: 12px;
@@ -68,11 +57,13 @@
             border-radius: 8px;
             font-size: 15px;
             transition: border-color 0.2s;
+            font-family: inherit;
         }
 
-        input:focus {
+        input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(64,192,87,0.15);
         }
 
         button#submitBtn {
@@ -88,13 +79,53 @@
             transition: background 0.2s;
         }
 
-        button#submitBtn:hover { background: var(--primary-hover); }
+        button#submitBtn:hover:not(:disabled) { background: var(--primary-hover); }
+        button#submitBtn:disabled { background: #adb5bd; cursor: not-allowed; }
 
-        /* 테이블 스타일 */
+        /* 알림 토스트 */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #343a40;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+            pointer-events: none;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+        #toast.success { background: #40c057; }
+        #toast.error { background: #fa5252; }
+
+        /* 디버그 패널 */
+        #debugPanel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #495057;
+            display: none;
+        }
+        #debugPanel.visible { display: block; }
+        #debugLog { max-height: 120px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .log-item { padding: 3px 0; border-bottom: 1px solid #e9ecef; }
+        .log-ok { color: #40c057; }
+        .log-err { color: #fa5252; }
+        .log-info { color: #228be6; }
+
+        /* 테이블 */
         .table-container { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
         th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; color: #495057; }
         td { padding: 12px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
+        tr:hover td { background: #f8fff9; }
 
         .status-badge {
             padding: 5px 10px;
@@ -104,15 +135,46 @@
             border: 1px solid transparent;
             display: inline-block;
             text-align: center;
+            font-weight: 600;
         }
-
         .status-none { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; }
+        .status-none:hover { background: #ffe3e3; }
         .status-done { background: #ebfbee; color: #40c057; border-color: #b2f2bb; cursor: default; }
 
-        #loading { text-align: center; padding: 20px; font-size: 14px; color: #868e96; display: none; }
+        #loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #868e96;
+            display: none;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #495057;
+            transition: all 0.2s;
+        }
+        .toolbar-btn:hover { background: #f1f3f5; border-color: #adb5bd; }
+        .toolbar-btn.active { background: #e8f5e9; border-color: var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
+
+<div id="toast"></div>
 
 <div class="container">
     <div class="card">
@@ -120,28 +182,45 @@
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
-                    <label>공문번호</label>
-                    <input type="text" name="docNum" placeholder="예: 초등-2026-001" required>
+                    <label for="docNum">공문번호</label>
+                    <input type="text" id="docNum" name="docNum" placeholder="예: 초등-2026-001" required>
                 </div>
                 <div class="input-group">
-                    <label>공문제목</label>
-                    <input type="text" name="title" placeholder="업무 내용을 입력하세요" required>
+                    <label for="title">공문제목</label>
+                    <input type="text" id="title" name="title" placeholder="업무 내용을 입력하세요" required>
                 </div>
                 <div class="input-group">
-                    <label>제출마감일</label>
-                    <input type="date" name="dueDate" required>
+                    <label for="dueDate">제출마감일</label>
+                    <input type="date" id="dueDate" name="dueDate" required>
                 </div>
             </div>
             <div class="input-group" style="margin-bottom: 20px;">
-                <label>비고</label>
-                <textarea name="memo" rows="1" placeholder="메모할 사항이 있으면 입력하세요"></textarea>
+                <label for="memo">비고</label>
+                <textarea id="memo" name="memo" rows="2" placeholder="메모할 사항이 있으면 입력하세요"></textarea>
             </div>
-            <button type="submit" id="submitBtn">업무 등록하기</button>
+            <button type="submit" id="submitBtn">
+                <i class="fas fa-plus-circle"></i> 업무 등록하기
+            </button>
         </form>
+
+        <!-- 디버그 패널 -->
+        <div id="debugPanel">
+            <strong>🔍 통신 로그</strong>
+            <div id="debugLog"></div>
+        </div>
     </div>
 
     <div class="card">
-        <h2><i class="fas fa-list-check"></i> 업무 추진 현황 (마감 순)</h2>
+        <div class="toolbar">
+            <h2 style="margin:0;"><i class="fas fa-list-check"></i> 업무 추진 현황 (마감 순)</h2>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="toolbar-btn" id="filterAll" onclick="setFilter('all')">전체</button>
+                <button class="toolbar-btn" id="filterPending" onclick="setFilter('pending')">미제출</button>
+                <button class="toolbar-btn" id="filterDone" onclick="setFilter('done')">완료</button>
+                <button class="toolbar-btn" onclick="fetchAndDisplayData()"><i class="fas fa-rotate-right"></i> 새로고침</button>
+                <button class="toolbar-btn" id="debugBtn" onclick="toggleDebug()"><i class="fas fa-bug"></i> 디버그</button>
+            </div>
+        </div>
         <div id="loading"><i class="fas fa-spinner fa-spin"></i> 서버에서 데이터를 가져오고 있습니다...</div>
         <div class="table-container">
             <table>
@@ -162,14 +241,266 @@
 </div>
 
 <script>
-    // 제공해주신 최신 배포 URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxdfb5_IhtPEl9HAQ-VxBc8Gysbu5C1_Q39aeZpQktD6BaGtIZc8jJ373GDIBAU-R2R/exec';
-    
-    window.onload = fetchAndDisplayData;
+    // ✅ Apps Script 배포 URL
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxSZyQ0XtvsUfcleUTv5fWb9LeXPKRJR7f8I9t7vzj-g0fxNEKyupYUphWejA9PUIWd/exec';
 
-    // JSONP 통신 함수
-    function jsonpRequest(params) {
+    let allData = [];
+    let currentFilter = 'all';
+    let debugVisible = false;
+
+    // ── 토스트 알림 ──────────────────────────────────────────
+    function showToast(msg, type = '') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = type ? `show ${type}` : 'show';
+        setTimeout(() => { t.className = ''; }, 3000);
+    }
+
+    // ── 디버그 로그 ──────────────────────────────────────────
+    function log(msg, type = 'info') {
+        const el = document.getElementById('debugLog');
+        const d = document.createElement('div');
+        d.className = `log-item log-${type}`;
+        d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        el.prepend(d);
+        console.log(`[Scheduler] ${msg}`);
+    }
+
+    function toggleDebug() {
+        debugVisible = !debugVisible;
+        document.getElementById('debugPanel').classList.toggle('visible', debugVisible);
+        document.getElementById('debugBtn').classList.toggle('active', debugVisible);
+    }
+
+    // ── JSONP 통신 (타임아웃 추가) ───────────────────────────
+    function jsonpRequest(params, timeoutMs = 15000) {
         return new Promise((resolve, reject) => {
-            const callbackName = 'jsonp_' + Math.round(100000 * Math.random());
+            const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+
+            const timer = setTimeout(() => {
+                cleanup();
+                reject(new Error('요청 시간 초과 (15초). 서버 응답이 없습니다.'));
+            }, timeoutMs);
+
+            function cleanup() {
+                clearTimeout(timer);
+                delete window[callbackName];
+                if (script.parentNode) document.body.removeChild(script);
+            }
+
             window[callbackName] = function(data) {
-                delete
+                cleanup();
+                resolve(data);
+            };
+
+            const script = document.createElement('script');
+            let url = scriptURL + '?callback=' + callbackName;
+            for (const key in params) {
+                url += `&${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
+            }
+            log(`요청: action=${params.action}`, 'info');
+            script.src = url;
+            script.onerror = () => {
+                cleanup();
+                reject(new Error('스크립트 로드 실패. URL 또는 네트워크를 확인하세요.'));
+            };
+            document.body.appendChild(script);
+        });
+    }
+
+    // ── 필터 ─────────────────────────────────────────────────
+    function setFilter(f) {
+        currentFilter = f;
+        ['All','Pending','Done'].forEach(k => {
+            document.getElementById('filter'+k).classList.remove('active');
+        });
+        document.getElementById('filter' + f.charAt(0).toUpperCase() + f.slice(1)).classList.add('active');
+        renderTable(allData);
+    }
+
+    // ── 테이블 렌더링 ─────────────────────────────────────────
+    function renderTable(data) {
+        const tbody = document.getElementById('scheduleList');
+        tbody.innerHTML = '';
+
+        let filtered = data;
+        if (currentFilter === 'pending') filtered = data.filter(r => !r.submitDate || r.submitDate.toString().trim() === '');
+        if (currentFilter === 'done')    filtered = data.filter(r => r.submitDate && r.submitDate.toString().trim() !== '');
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#adb5bd;padding:30px;">
+                <i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+                표시할 업무가 없습니다.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            const isSubmitted = row.submitDate && row.submitDate.toString().trim() !== '';
+
+            // 마감 임박 강조 (오늘 기준 3일 이내, 미완료)
+            let dueCss = '';
+            if (!isSubmitted && row.dueDate) {
+                const diff = (new Date(row.dueDate) - new Date()) / 86400000;
+                if (diff < 0)       dueCss = 'color:#e03131;font-weight:bold;'; // 초과
+                else if (diff <= 3) dueCss = 'color:#f76707;font-weight:bold;'; // 임박
+                else                dueCss = 'color:#e03131;font-weight:bold;';
+            }
+
+            tr.innerHTML = `
+                <td style="color:#adb5bd;">${index + 1}</td>
+                <td style="font-size:13px;">${row.docNum || ''}</td>
+                <td><strong>${row.title || ''}</strong></td>
+                <td>
+                    ${isSubmitted
+                        ? `<span class="status-badge status-done"><i class="fas fa-check"></i> ${row.submitDate}</span>`
+                        : `<button class="status-badge status-none" onclick="updateDate(${row.rowNum}, '${(row.title||'').replace(/'/g,"\\'")}')">
+                             <i class="fas fa-clock"></i> 미제출 (입력)
+                           </button>`
+                    }
+                </td>
+                <td style="${dueCss}">${row.dueDate || ''}</td>
+                <td style="color:#868e96;font-size:12px;">${row.memo || '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ── 데이터 조회 ───────────────────────────────────────────
+    async function fetchAndDisplayData() {
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+        log('데이터 조회 시작...', 'info');
+
+        try {
+            const data = await jsonpRequest({ action: 'read' });
+            log(`데이터 수신: ${JSON.stringify(data).slice(0, 80)}...`, 'ok');
+
+            // 응답이 배열인지 확인
+            if (!Array.isArray(data)) {
+                throw new Error(`응답이 배열이 아닙니다: ${JSON.stringify(data)}`);
+            }
+
+            // 마감일 오름차순 정렬
+            data.sort((a, b) => new Date(a.dueDate || '9999-12-31') - new Date(b.dueDate || '9999-12-31'));
+            allData = data;
+            renderTable(allData);
+            log(`총 ${data.length}건 렌더링 완료`, 'ok');
+
+        } catch (e) {
+            log(`조회 실패: ${e.message}`, 'err');
+            document.getElementById('scheduleList').innerHTML =
+                `<tr><td colspan="6" style="text-align:center;color:#fa5252;padding:20px;">
+                    <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br>
+                    <small style="color:#adb5bd;">${e.message}</small><br>
+                    <small style="color:#adb5bd;">Apps Script 배포 설정을 확인하세요 (아래 체크리스트 참고)</small>
+                </td></tr>`;
+            showToast('데이터 로드 실패: ' + e.message, 'error');
+            // 실패시 디버그 패널 자동 열기
+            if (!debugVisible) toggleDebug();
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    // ── 업무 등록 ─────────────────────────────────────────────
+    document.getElementById('scheduleForm').onsubmit = async function(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 서버에 저장 중...';
+
+        const formData = new FormData(e.target);
+        const params = { action: 'create' };
+        formData.forEach((value, key) => { params[key] = value; });
+
+        log(`등록 시도: ${JSON.stringify(params)}`, 'info');
+
+        try {
+            const res = await jsonpRequest(params);
+            log(`등록 응답: ${JSON.stringify(res)}`, 'ok');
+
+            // ✅ 수정: 응답 형태가 다양할 수 있으므로 유연하게 처리
+            const isSuccess = res && (
+                res.status === 'success' ||
+                res.result === 'success' ||
+                res.message === 'success' ||
+                res.ok === true
+            );
+
+            if (isSuccess) {
+                showToast('✅ 업무가 성공적으로 등록되었습니다!', 'success');
+                e.target.reset();
+                await fetchAndDisplayData();
+            } else {
+                // 서버가 응답했지만 성공 신호가 없는 경우 — 그래도 새로고침 시도
+                log(`경고: 예상치 못한 응답 형태 → ${JSON.stringify(res)}`, 'err');
+                showToast('등록됐을 수 있습니다. 목록을 확인하세요.', '');
+                e.target.reset();
+                await fetchAndDisplayData();
+            }
+        } catch (err) {
+            log(`등록 실패: ${err.message}`, 'err');
+            showToast('등록 실패: ' + err.message, 'error');
+            if (!debugVisible) toggleDebug();
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-plus-circle"></i> 업무 등록하기';
+        }
+    };
+
+    // ── 제출일 업데이트 ───────────────────────────────────────
+    async function updateDate(rowNum, title) {
+        const today = new Date().toISOString().split('T')[0];
+        const date = prompt(`[${title}] 제출 완료 날짜를 입력하세요 (YYYY-MM-DD)`, today);
+        if (!date) return;
+
+        // 날짜 형식 간단 검증
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            showToast('날짜 형식이 올바르지 않습니다. (예: 2026-01-15)', 'error');
+            return;
+        }
+
+        log(`업데이트 시도: rowNum=${rowNum}, date=${date}`, 'info');
+        try {
+            const res = await jsonpRequest({ action: 'update', rowNum: rowNum, submitDate: date });
+            log(`업데이트 응답: ${JSON.stringify(res)}`, 'ok');
+
+            const isSuccess = res && (
+                res.status === 'success' ||
+                res.result === 'success' ||
+                res.ok === true
+            );
+
+            if (isSuccess) {
+                showToast('✅ 제출 날짜가 기록되었습니다!', 'success');
+            } else {
+                showToast('처리됐을 수 있습니다. 목록을 확인하세요.', '');
+            }
+            await fetchAndDisplayData();
+        } catch (err) {
+            log(`업데이트 실패: ${err.message}`, 'err');
+            showToast('업데이트 실패: ' + err.message, 'error');
+            if (!debugVisible) toggleDebug();
+        }
+    }
+
+    // ── 초기화 ────────────────────────────────────────────────
+    document.getElementById('filterAll').classList.add('active');
+    window.onload = fetchAndDisplayData;
+</script>
+
+<!-- ✅ Apps Script 체크리스트 (개발자용 메모) -->
+<!--
+[Apps Script 배포 설정 확인사항]
+1. 배포 > 웹 앱으로 배포 > 액세스: "모든 사용자" (익명 포함) 로 설정되어 있어야 함
+2. 코드 수정 후 반드시 "새 배포"가 아닌 "기존 배포 업데이트" 해야 URL이 유지됨
+3. doGet(e) 함수에서 ContentService.createTextOutput(
+     e.parameter.callback + '(' + JSON.stringify(result) + ')'
+   ).setMimeType(ContentService.MimeType.JAVASCRIPT) 형태로 반환해야 함
+4. 응답 JSON에 { status: "success" } 가 포함되어 있는지 확인
+5. 스프레드시트 권한: Apps Script가 해당 시트에 접근 권한이 있어야 함
+-->
+</body>
+</html>
