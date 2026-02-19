@@ -3,29 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>업무 스케줄러 - 구례중학교</title>
+    <title id="pageTitle">업무 스케줄러</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --primary: #40c057; --primary-hover: #37b24d; --bg: #f1f3f5; --text: #212529; }
         * { box-sizing: border-box; }
         body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px 15px 60px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; }
 
         /* 헤더 */
-        .page-header { text-align: center; padding: 24px 0 18px; }
+        .page-header { text-align: center; padding: 22px 0 16px; }
         .page-header h1 { margin: 0; font-size: 26px; color: #2f9e44; font-weight: 800; letter-spacing: -0.5px; }
-        .page-header p { margin: 6px 0 0; color: #868e96; font-size: 14px; }
+        .page-header p { margin: 5px 0 0; color: #868e96; font-size: 14px; }
 
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.07); padding: 24px; margin-bottom: 20px; }
-        h2 { margin: 0 0 18px 0; font-size: 18px; color: #495057; display: flex; align-items: center; gap: 9px; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.07); padding: 22px; margin-bottom: 18px; }
+        h2 { margin: 0 0 16px 0; font-size: 17px; color: #495057; display: flex; align-items: center; gap: 9px; }
+
+        /* 설정 카드 */
+        .config-card { background: #f8fff9; border: 2px dashed #b2f2bb; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; }
+        .config-card h2 { color: #2f9e44; margin-bottom: 12px; font-size: 15px; }
+        .config-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; align-items: end; }
+        .config-input { display: flex; flex-direction: column; gap: 5px; }
+        .config-input label { font-size: 11px; font-weight: 700; color: #868e96; text-transform: uppercase; letter-spacing: 0.3px; }
+        .config-input input { padding: 9px 13px; border: 1.5px solid #b2f2bb; border-radius: 8px; font-size: 14px; font-family: inherit; background: white; width: 100%; }
+        .config-input input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); }
+        .config-note { font-size: 12px; color: #868e96; margin-top: 8px; display: flex; align-items: flex-start; gap: 5px; }
 
         /* 폼 */
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 13px; margin-bottom: 13px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 12px; margin-bottom: 12px; }
         .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group.full { grid-column: 1 / -1; }
         label { font-size: 12px; font-weight: 700; color: #868e96; text-transform: uppercase; letter-spacing: 0.3px; }
-        input, textarea { padding: 10px 13px; border: 1.5px solid #dee2e6; border-radius: 8px; font-size: 14px; font-family: inherit; transition: border-color 0.2s; width: 100%; background: #fafafa; }
-        input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); background: #fff; }
+        input[type=text], input[type=date], textarea {
+            padding: 10px 13px; border: 1.5px solid #dee2e6; border-radius: 8px;
+            font-size: 14px; font-family: inherit; transition: border-color 0.2s;
+            width: 100%; background: #fafafa;
+        }
+        input[type=text]:focus, input[type=date]:focus, textarea:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); background: #fff;
+        }
         textarea { resize: vertical; }
         #submitBtn { background: var(--primary); color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: background 0.2s; margin-top: 4px; }
         #submitBtn:hover:not(:disabled) { background: var(--primary-hover); }
@@ -38,28 +53,46 @@
         #toast.error { background: #fa5252; }
 
         /* 툴바 */
-        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
         .toolbar-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 6px; padding: 6px 13px; font-size: 13px; cursor: pointer; color: #495057; transition: all 0.2s; font-family: inherit; }
         .toolbar-btn:hover { background: #f1f3f5; border-color: #adb5bd; }
         .toolbar-btn.active { background: #ebfbee; border-color: var(--primary); color: var(--primary); font-weight: 600; }
 
         /* 테이블 */
         .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
-        th { background: #f8f9fa; padding: 10px 11px; text-align: left; border-bottom: 2px solid #e9ecef; color: #495057; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 980px; }
+        th { background: #f8f9fa; padding: 10px 10px; text-align: left; border-bottom: 2px solid #e9ecef; color: #495057; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { background: #e9ecef; }
-        td { padding: 10px 11px; border-bottom: 1px solid #f1f3f5; vertical-align: middle; }
+        td { padding: 10px 10px; border-bottom: 1px solid #f1f3f5; vertical-align: top; }
         tr:hover td { background: #f8fff9; }
-        td.content-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* 제출할 내용 셀 — 줄바꿈 허용, 최대 3줄 */
+        td.content-cell {
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 320px;
+            line-height: 1.5;
+        }
+        /* 비고 셀 — 좁게 */
+        td.memo-cell {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90px;
+            color: #868e96;
+            font-size: 12px;
+        }
 
         /* 배지 */
         .badge { padding: 4px 9px; border-radius: 5px; font-size: 11px; border: 1px solid transparent; display: inline-block; text-align: center; font-weight: 700; white-space: nowrap; }
         .badge-pending { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; cursor: pointer; }
         .badge-pending:hover { background: #ffe3e3; }
         .badge-done { background: #ebfbee; color: #40c057; border-color: #b2f2bb; cursor: default; }
+        .tag-req  { display:inline-block;background:#fff5f5;color:#fa5252;border:1px solid #ffc9c9;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-right:3px;vertical-align:middle; }
+        .tag-opt  { display:inline-block;background:#f1f3f5;color:#868e96;border:1px solid #dee2e6;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:600;margin-right:3px;vertical-align:middle; }
 
-        /* 액션 버튼 */
+        /* 액션 */
         .act-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
         .act-btn.edit { border-color: #74c0fc; color: #228be6; }
         .act-btn.edit:hover { background: #e7f5ff; }
@@ -75,15 +108,20 @@
         #pageInfo { text-align: center; font-size: 12px; color: #adb5bd; margin-top: 6px; }
 
         /* 모달 */
-        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 60px; }
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 50px; }
         .modal-bg.open { display: flex; }
-        .modal { background: white; border-radius: 14px; padding: 28px; width: 92%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .modal h3 { margin: 0 0 20px; font-size: 17px; color: #343a40; display: flex; align-items: center; gap: 8px; }
-        .modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .modal { background: white; border-radius: 14px; padding: 26px; width: 92%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal h3 { margin: 0 0 18px; font-size: 17px; color: #343a40; display: flex; align-items: center; gap: 8px; }
+        .modal-footer { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
         .btn-cancel { background: #f1f3f5; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 600; color: #495057; }
         .btn-cancel:hover { background: #e9ecef; }
         .btn-save { background: var(--primary); border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 700; color: white; }
         .btn-save:hover { background: var(--primary-hover); }
+
+        /* 라디오 */
+        .radio-group { display: flex; align-items: center; gap: 14px; }
+        .radio-label { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 12px; font-weight: 600; text-transform: none; letter-spacing: 0; color: #495057; }
+        .radio-label input[type=radio] { width: auto; padding: 0; border: none; box-shadow: none; background: transparent; }
 
         /* 디버그 */
         #debugPanel { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px 16px; margin-top: 12px; display: none; }
@@ -93,58 +131,55 @@
         .log-ok { color: #40c057; } .log-err { color: #fa5252; } .log-info { color: #228be6; }
         #loading { text-align: center; padding: 20px; font-size: 14px; color: #868e96; display: none; }
 
-        /* 푸터 */
         footer { text-align: center; padding: 20px 0 10px; font-size: 12px; color: #adb5bd; }
     </style>
 </head>
 <body>
 <div id="toast"></div>
 
-<!-- 수정 모달 -->
+<!-- ══════════════ 수정 모달 ══════════════ -->
 <div class="modal-bg" id="editModal">
     <div class="modal">
         <h3><i class="fas fa-pen" style="color:var(--primary);"></i> 업무 수정</h3>
         <input type="hidden" id="eRowNum">
         <div class="form-grid">
             <div class="input-group">
-                <label>공문번호 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
-                <input type="text" id="eDocNum" placeholder="예: 중등교육과-001">
+                <label>공문번호 <span style="opacity:.5;font-weight:400;">(선택)</span></label>
+                <input type="text" id="eDocNum" placeholder="중등교육과-001">
             </div>
             <div class="input-group">
                 <label>공문제목 <span style="color:#fa5252;">*</span></label>
-                <input type="text" id="eTitle" placeholder="제목 입력">
+                <input type="text" id="eTitle">
             </div>
             <div class="input-group">
-                <label>제출마감일 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <label>제출마감일</label>
                 <input type="date" id="eDueDate">
             </div>
             <div class="input-group">
-                <label>제출일(완료) <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <label>제출일(완료)</label>
                 <input type="date" id="eSubmitDate">
             </div>
         </div>
         <div class="input-group" style="margin-top:12px;">
-            <label style="display:flex;align-items:center;gap:14px;">
+            <label style="display:flex;align-items:center;gap:12px;">
                 제출할 내용
-                <span style="display:flex;align-items:center;gap:10px;">
-                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#868e96;font-size:12px;text-transform:none;letter-spacing:0;font-weight:500;">
+                <span class="radio-group">
+                    <label class="radio-label" style="color:#495057;">
                         <input type="radio" name="eContentType" value="선택" checked
-                            style="width:auto;padding:0;border:none;box-shadow:none;accent-color:var(--primary);">
-                        선택
+                            style="accent-color:var(--primary);"> 선택
                     </label>
-                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#fa5252;font-size:12px;text-transform:none;letter-spacing:0;font-weight:500;">
+                    <label class="radio-label" style="color:#fa5252;">
                         <input type="radio" name="eContentType" value="필수"
-                            style="width:auto;padding:0;border:none;box-shadow:none;accent-color:#fa5252;">
-                        필수
+                            style="accent-color:#fa5252;"> 필수
                     </label>
                 </span>
             </label>
-            <textarea id="eContent" rows="2" placeholder="제출할 내용 입력"></textarea>
+            <textarea id="eContent" rows="3" placeholder="제출할 내용을 입력하세요"></textarea>
             <input type="hidden" id="eContentType" value="선택">
         </div>
         <div class="input-group" style="margin-top:12px;">
             <label>비고</label>
-            <textarea id="eMemo" rows="2" placeholder="메모"></textarea>
+            <input type="text" id="eMemo" placeholder="메모 (짧게)">
         </div>
         <div class="modal-footer">
             <button class="btn-cancel" onclick="closeModal()">취소</button>
@@ -154,19 +189,52 @@
 </div>
 
 <div class="container">
+
+    <!-- ══════════════ 학교 설정 카드 ══════════════ -->
+    <div class="config-card" id="configCard">
+        <h2><i class="fas fa-gear" style="color:var(--primary);"></i> 학교 설정 <span style="font-size:12px;font-weight:400;color:#868e96;margin-left:4px;">— 처음 한 번만 설정하세요</span></h2>
+        <div class="config-grid">
+            <div class="config-input">
+                <label>학교명</label>
+                <input type="text" id="cfgSchool" placeholder="예: 구례중학교" maxlength="30">
+            </div>
+            <div class="config-input">
+                <label>Apps Script 배포 URL</label>
+                <input type="text" id="cfgUrl" placeholder="https://script.google.com/macros/s/...">
+            </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
+            <button onclick="saveConfig()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;">
+                <i class="fas fa-check"></i> 설정 저장
+            </button>
+            <button onclick="toggleConfig()" style="background:none;border:1.5px solid #dee2e6;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;color:#868e96;">
+                접기
+            </button>
+        </div>
+        <div class="config-note">
+            <i class="fas fa-circle-info" style="color:#74c0fc;margin-top:1px;"></i>
+            설정은 이 브라우저에 저장됩니다. URL은 Apps Script 배포 후 복사한 웹 앱 주소를 붙여넣으세요.
+        </div>
+    </div>
+    <div id="configCollapsed" style="display:none;margin-bottom:18px;">
+        <button onclick="toggleConfig()" style="background:none;border:1.5px solid #b2f2bb;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;color:#40c057;font-weight:600;">
+            <i class="fas fa-gear"></i> 학교 설정 열기
+        </button>
+    </div>
+
     <!-- 헤더 -->
     <div class="page-header">
         <h1><i class="fas fa-calendar-check" style="margin-right:8px;"></i>업무 추진 스케줄러</h1>
-        <p>구례중학교 업무 관리 시스템</p>
+        <p id="headerSchool">업무 관리 시스템</p>
     </div>
 
     <!-- 등록 카드 -->
     <div class="card">
-        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 업무 등록</h2>
+        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
-                    <label>공문번호 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                    <label>공문번호 <span style="opacity:.5;font-weight:400;">(선택)</span></label>
                     <input type="text" id="docNum" name="docNum" placeholder="예: 중등교육과-001">
                 </div>
                 <div class="input-group">
@@ -174,27 +242,25 @@
                     <input type="text" id="title" name="title" placeholder="공문 제목 입력" required>
                 </div>
                 <div class="input-group">
-                    <label>제출마감일 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                    <label>제출마감일 <span style="opacity:.5;font-weight:400;">(선택)</span></label>
                     <input type="date" id="dueDate" name="dueDate">
                 </div>
                 <div class="input-group">
-                    <label>비고 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
-                    <input type="text" id="memo" name="memo" placeholder="메모">
+                    <label>비고 <span style="opacity:.5;font-weight:400;">(선택)</span></label>
+                    <input type="text" id="memo" name="memo" placeholder="짧은 메모">
                 </div>
             </div>
-            <div class="input-group" style="margin-bottom:14px;">
-                <label style="display:flex;align-items:center;gap:14px;">
-                    제출할 내용
-                    <span style="display:flex;align-items:center;gap:10px;font-weight:500;font-size:13px;">
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#868e96;font-size:12px;text-transform:none;letter-spacing:0;">
+            <div class="input-group" style="margin-bottom:13px;">
+                <label style="display:flex;align-items:center;gap:12px;">
+                    제출할 내용 <span style="opacity:.5;font-weight:400;font-size:11px;">(선택)</span>
+                    <span class="radio-group">
+                        <label class="radio-label" style="color:#495057;">
                             <input type="radio" name="contentType" id="ctOptional" value="선택" checked
-                                style="width:auto;padding:0;border:none;box-shadow:none;accent-color:var(--primary);">
-                            선택
+                                style="accent-color:var(--primary);"> 선택
                         </label>
-                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#fa5252;font-size:12px;text-transform:none;letter-spacing:0;">
+                        <label class="radio-label" style="color:#fa5252;">
                             <input type="radio" name="contentType" id="ctRequired" value="필수"
-                                style="width:auto;padding:0;border:none;box-shadow:none;accent-color:#fa5252;">
-                            필수
+                                style="accent-color:#fa5252;"> 필수
                         </label>
                     </span>
                 </label>
@@ -223,16 +289,16 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width:42px;text-align:center;">#</th>
-                        <th>공문번호</th>
-                        <th>공문제목</th>
-                        <th style="min-width:160px;">제출할 내용</th>
-                        <th class="sortable" id="thDue" onclick="toggleSort()">
+                        <th style="width:38px;text-align:center;">#</th>
+                        <th style="width:120px;">공문번호</th>
+                        <th style="min-width:160px;">공문제목</th>
+                        <th style="min-width:260px;">제출할 내용</th>
+                        <th class="sortable" id="thDue" onclick="toggleSort()" style="width:115px;">
                             제출마감일 <span id="sortIcon">▲</span>
                         </th>
-                        <th>제출일(완료)</th>
-                        <th>비고</th>
-                        <th style="width:90px;text-align:center;">관리</th>
+                        <th style="width:115px;">제출일(완료)</th>
+                        <th style="width:90px;">비고</th>
+                        <th style="width:80px;text-align:center;">관리</th>
                     </tr>
                 </thead>
                 <tbody id="tBody"></tbody>
@@ -240,25 +306,62 @@
         </div>
         <div style="margin-top:8px;font-size:12px;color:#adb5bd;display:flex;align-items:center;gap:5px;">
             <i class="fas fa-circle-info" style="color:#74c0fc;"></i>
-            공문은 <strong style="color:#495057;">제출마감일 순</strong>으로 자동 정렬됩니다. 마감일 헤더를 클릭하면 오름차순/내림차순 전환됩니다.
+            공문은 <strong style="color:#495057;">제출마감일 순</strong>으로 자동 정렬됩니다. 마감일 헤더 클릭 시 오름차순/내림차순 전환됩니다.
         </div>
         <div class="pagination" id="pagination"></div>
         <div id="pageInfo"></div>
     </div>
 </div>
 
-<footer>
+<footer id="footerText">
     Developed by Choi Gwang-cheol of Gurye Middle School in 2026. All rights reserved.
 </footer>
 
 <script>
-    // ★ 배포 URL (본인 것으로 유지)
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec';
+    /* ══════════════════════════════════════════════
+       ★ 학교 설정 (localStorage 저장/로드)
+    ══════════════════════════════════════════════ */
+    const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec';
 
+    let SCRIPT_URL = localStorage.getItem('sched_url') || DEFAULT_URL;
+    let SCHOOL     = localStorage.getItem('sched_school') || '구례중학교';
+
+    function applyConfig() {
+        document.getElementById('pageTitle').textContent  = `업무 스케줄러 - ${SCHOOL}`;
+        document.getElementById('headerSchool').textContent = `${SCHOOL} 업무 관리 시스템`;
+        document.getElementById('cfgSchool').value = SCHOOL;
+        document.getElementById('cfgUrl').value    = SCRIPT_URL;
+    }
+
+    function saveConfig() {
+        const school = document.getElementById('cfgSchool').value.trim();
+        const url    = document.getElementById('cfgUrl').value.trim();
+        if (!school) { toast('학교명을 입력하세요.', 'error'); return; }
+        if (!url.startsWith('https://script.google.com')) { toast('올바른 Apps Script URL을 입력하세요.', 'error'); return; }
+        SCHOOL     = school;
+        SCRIPT_URL = url;
+        localStorage.setItem('sched_school', SCHOOL);
+        localStorage.setItem('sched_url',    SCRIPT_URL);
+        applyConfig();
+        toast('✅ 설정이 저장되었습니다!', 'success');
+        toggleConfig();
+        fetchData();
+    }
+
+    function toggleConfig() {
+        const card      = document.getElementById('configCard');
+        const collapsed = document.getElementById('configCollapsed');
+        const isOpen    = card.style.display !== 'none';
+        card.style.display      = isOpen ? 'none' : '';
+        collapsed.style.display = isOpen ? '' : 'none';
+    }
+
+    /* ══════════════════════════════════════════════
+       앱 상태
+    ══════════════════════════════════════════════ */
     const PAGE_SIZE = 15;
     let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false;
 
-    /* ── 유틸 ───────────────────────────────── */
     const $ = id => document.getElementById(id);
     const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
 
@@ -280,19 +383,13 @@
     }
     function isOk(r){ return r&&(r.status==='success'||r.result==='success'||r.ok===true); }
 
-    /* ── 라디오 버튼 → hidden input 동기화 ─── */
-    document.querySelectorAll('input[name="contentType"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-            $('contentTypeVal').value = radio.value;
-        });
-    });
-    document.querySelectorAll('input[name="eContentType"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-            $('eContentType').value = radio.value;
-        });
-    });
+    /* ── 라디오 동기화 ── */
+    document.querySelectorAll('input[name="contentType"]').forEach(r=>
+        r.addEventListener('change',()=>$('contentTypeVal').value=r.value));
+    document.querySelectorAll('input[name="eContentType"]').forEach(r=>
+        r.addEventListener('change',()=>$('eContentType').value=r.value));
 
-    /* ── JSONP ──────────────────────────────── */
+    /* ── JSONP ── */
     function rpc(params, ms=15000) {
         return new Promise((res,rej)=>{
             const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
@@ -308,7 +405,7 @@
         });
     }
 
-    /* ── 필터 / 정렬 ────────────────────────── */
+    /* ── 필터 / 정렬 ── */
     function setFilter(f){
         filter=f; page=1;
         ['All','Pending','Done'].forEach(k=>$('filter'+k).classList.remove('active'));
@@ -331,7 +428,7 @@
         return d;
     }
 
-    /* ── 렌더 ───────────────────────────────── */
+    /* ── 렌더 ── */
     function render(){
         const tbody=$('tBody'); tbody.innerHTML='';
         const fd=filtered(), total=fd.length;
@@ -353,27 +450,31 @@
             let dueCss='';
             if(!done&&row.dueDate){
                 const diff=(new Date(row.dueDate)-new Date())/86400000;
-                dueCss=diff<0?'color:#e03131;font-weight:700;':diff<=3?'color:#f76707;font-weight:700;':'color:#495057;';
+                dueCss=diff<0?'color:#e03131;font-weight:700;':diff<=3?'color:#f76707;font-weight:700;':'';
             }
+            const isReq=(row.contentType==='필수');
+            const tag=row.content
+                ?(isReq?'<span class="tag-req">필수</span>':'<span class="tag-opt">선택</span>')
+                :'';
+            // 내용은 HTML 이스케이프 후 줄바꿈 유지
+            const contentHtml = row.content
+                ? tag + (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
+                : '-';
+
             tr.innerHTML=`
-                <td style="color:#adb5bd;text-align:center;">${start+i+1}</td>
-                <td style="font-size:12px;color:#868e96;">${safe(row.docNum)||'-'}</td>
-                <td><strong>${safe(row.title)}</strong></td>
-                <td class="content-cell" title="${safe(row.content)||''}">
-                    ${row.contentType==='필수'
-                        ?`<span style="display:inline-block;background:#fff5f5;color:#fa5252;border:1px solid #ffc9c9;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-right:4px;">필수</span>`
-                        :row.content?`<span style="display:inline-block;background:#f1f3f5;color:#868e96;border:1px solid #dee2e6;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;margin-right:4px;">선택</span>`:''}
-                    ${safe(row.content)||'-'}
-                </td>
-                <td style="${dueCss}">${row.dueDate||'-'}</td>
-                <td>${done
+                <td style="color:#adb5bd;text-align:center;vertical-align:middle;">${start+i+1}</td>
+                <td style="font-size:12px;color:#868e96;vertical-align:middle;">${safe(row.docNum)||'-'}</td>
+                <td style="vertical-align:middle;"><strong>${safe(row.title)}</strong></td>
+                <td class="content-cell">${contentHtml}</td>
+                <td style="${dueCss}vertical-align:middle;">${row.dueDate||'-'}</td>
+                <td style="vertical-align:middle;">${done
                     ?`<span class="badge badge-done"><i class="fas fa-check"></i> ${row.submitDate}</span>`
                     :`<button class="badge badge-pending" onclick="markDone(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-clock"></i> 미제출</button>`}
                 </td>
-                <td style="color:#868e96;font-size:12px;">${safe(row.memo)||'-'}</td>
-                <td style="text-align:center;white-space:nowrap;">
+                <td class="memo-cell" title="${safe(row.memo)||''}">${safe(row.memo)||'-'}</td>
+                <td style="text-align:center;vertical-align:middle;white-space:nowrap;">
                     <button class="act-btn edit" onclick="openEdit(${row.rowNum})"><i class="fas fa-pen"></i></button>
-                    <button class="act-btn del" style="margin-left:4px;" onclick="delRow(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-trash"></i></button>
+                    <button class="act-btn del" style="margin-left:3px;" onclick="delRow(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-trash"></i></button>
                 </td>`;
             tbody.appendChild(tr);
         });
@@ -388,7 +489,10 @@
         const btn=(lbl,p,active,dis)=>{
             const b=document.createElement('button');
             b.className='pg-btn'+(active?' active':''); b.disabled=!!dis; b.innerHTML=lbl;
-            if(!dis&&!active) b.onclick=()=>{page=p;render();document.getElementById('tBody').closest('.card').scrollIntoView({behavior:'smooth',block:'start'});};
+            if(!dis&&!active) b.onclick=()=>{
+                page=p; render();
+                $('tBody').closest('.card').scrollIntoView({behavior:'smooth',block:'start'});
+            };
             return b;
         };
         c.appendChild(btn('<i class="fas fa-angle-left"></i>',page-1,false,page===1));
@@ -408,7 +512,7 @@
         c.appendChild(btn('<i class="fas fa-angle-right"></i>',page+1,false,page===total));
     }
 
-    /* ── 데이터 로드 ─────────────────────────── */
+    /* ── 데이터 로드 ── */
     async function fetchData(){
         $('loading').style.display='block';
         try{
@@ -418,13 +522,15 @@
         }catch(e){
             log('조회 실패: '+e.message,'err');
             $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
-                <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br><small style="color:#adb5bd;">${e.message}</small></td></tr>`;
+                <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br>
+                <small style="color:#adb5bd;">${e.message}</small><br>
+                <small style="color:#adb5bd;">상단 <b>학교 설정</b>에서 URL을 확인하세요.</small></td></tr>`;
             toast('데이터 로드 실패','error');
-            if(!dbgVisible)toggleDebug();
+            if(!dbgVisible) toggleDebug();
         }finally{$('loading').style.display='none';}
     }
 
-    /* ── 등록 ───────────────────────────────── */
+    /* ── 등록 ── */
     $('scheduleForm').onsubmit=async function(e){
         e.preventDefault();
         const btn=$('submitBtn'); btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 저장 중...';
@@ -440,12 +546,12 @@
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> 업무 등록하기';}
     };
 
-    /* ── 제출일 입력 ─────────────────────────── */
+    /* ── 제출일 입력 ── */
     async function markDone(rowNum,title){
         const today=new Date().toISOString().split('T')[0];
         const date=prompt(`[${title}]\n제출 완료 날짜 입력 (YYYY-MM-DD)`,today);
         if(!date) return;
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast('날짜 형식 오류 (예: 2026-01-15)','error');return;}
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast('날짜 형식 오류','error');return;}
         try{
             const r=await rpc({action:'update',rowNum,submitDate:date});
             toast(isOk(r)?'✅ 제출일 기록!':'처리됐을 수 있습니다.',isOk(r)?'success':'');
@@ -453,7 +559,7 @@
         }catch(err){toast('업데이트 실패','error');}
     }
 
-    /* ── 수정 모달 ──────────────────────────── */
+    /* ── 수정 모달 ── */
     function openEdit(rowNum){
         const row=allData.find(r=>r.rowNum===rowNum); if(!row) return;
         $('eRowNum').value=rowNum;
@@ -463,10 +569,9 @@
         $('eSubmitDate').value=row.submitDate||'';
         $('eContent').value=row.content||'';
         $('eMemo').value=row.memo||'';
-        // 선택/필수 라디오 복원
         const ct=row.contentType||'선택';
         $('eContentType').value=ct;
-        document.querySelectorAll('input[name="eContentType"]').forEach(r=>{ r.checked=(r.value===ct); });
+        document.querySelectorAll('input[name="eContentType"]').forEach(r=>r.checked=(r.value===ct));
         $('editModal').classList.add('open');
     }
     function closeModal(){ $('editModal').classList.remove('open'); }
@@ -477,7 +582,8 @@
         if(!title){toast('공문제목은 필수입니다.','error');return;}
         const p={action:'edit',rowNum:$('eRowNum').value,docNum:$('eDocNum').value.trim(),
             title,dueDate:$('eDueDate').value,submitDate:$('eSubmitDate').value,
-            content:$('eContent').value.trim(),contentType:$('eContentType').value,memo:$('eMemo').value.trim()};
+            content:$('eContent').value.trim(),contentType:$('eContentType').value,
+            memo:$('eMemo').value.trim()};
         closeModal();
         try{
             const r=await rpc(p);
@@ -486,7 +592,7 @@
         }catch(err){toast('수정 실패: '+err.message,'error');}
     }
 
-    /* ── 삭제 ───────────────────────────────── */
+    /* ── 삭제 ── */
     async function delRow(rowNum,title){
         if(!confirm(`[${title}]\n삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
         try{
@@ -496,8 +602,13 @@
         }catch(err){toast('삭제 실패','error');}
     }
 
-    window.onload=fetchData;
+    /* ── 초기화 ── */
+    window.onload = function(){
+        applyConfig();
+        // 설정이 이미 있으면 설정창 접기
+        if(localStorage.getItem('sched_url')) toggleConfig();
+        fetchData();
+    };
 </script>
 </body>
 </html>
-
