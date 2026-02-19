@@ -124,8 +124,23 @@
             </div>
         </div>
         <div class="input-group" style="margin-top:12px;">
-            <label>제출할 내용</label>
+            <label style="display:flex;align-items:center;gap:14px;">
+                제출할 내용
+                <span style="display:flex;align-items:center;gap:10px;">
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#868e96;font-size:12px;text-transform:none;letter-spacing:0;font-weight:500;">
+                        <input type="radio" name="eContentType" value="선택" checked
+                            style="width:auto;padding:0;border:none;box-shadow:none;accent-color:var(--primary);">
+                        선택
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#fa5252;font-size:12px;text-transform:none;letter-spacing:0;font-weight:500;">
+                        <input type="radio" name="eContentType" value="필수"
+                            style="width:auto;padding:0;border:none;box-shadow:none;accent-color:#fa5252;">
+                        필수
+                    </label>
+                </span>
+            </label>
             <textarea id="eContent" rows="2" placeholder="제출할 내용 입력"></textarea>
+            <input type="hidden" id="eContentType" value="선택">
         </div>
         <div class="input-group" style="margin-top:12px;">
             <label>비고</label>
@@ -142,12 +157,12 @@
     <!-- 헤더 -->
     <div class="page-header">
         <h1><i class="fas fa-calendar-check" style="margin-right:8px;"></i>업무 추진 스케줄러</h1>
-        <p>교감 업무 관리 시스템</p>
+        <p>구례중학교 업무 관리 시스템</p>
     </div>
 
     <!-- 등록 카드 -->
     <div class="card">
-        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 업무 등록</h2>
+        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
@@ -168,8 +183,23 @@
                 </div>
             </div>
             <div class="input-group" style="margin-bottom:14px;">
-                <label>제출할 내용 <span style="font-weight:400;opacity:.6;">(선택)</span></label>
+                <label style="display:flex;align-items:center;gap:14px;">
+                    제출할 내용
+                    <span style="display:flex;align-items:center;gap:10px;font-weight:500;font-size:13px;">
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#868e96;font-size:12px;text-transform:none;letter-spacing:0;">
+                            <input type="radio" name="contentType" id="ctOptional" value="선택" checked
+                                style="width:auto;padding:0;border:none;box-shadow:none;accent-color:var(--primary);">
+                            선택
+                        </label>
+                        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#fa5252;font-size:12px;text-transform:none;letter-spacing:0;">
+                            <input type="radio" name="contentType" id="ctRequired" value="필수"
+                                style="width:auto;padding:0;border:none;box-shadow:none;accent-color:#fa5252;">
+                            필수
+                        </label>
+                    </span>
+                </label>
                 <textarea id="content" name="content" rows="2" placeholder="제출할 내용을 입력하세요"></textarea>
+                <input type="hidden" id="contentTypeVal" name="contentType" value="선택">
             </div>
             <button type="submit" id="submitBtn"><i class="fas fa-plus-circle"></i> 업무 등록하기</button>
         </form>
@@ -208,18 +238,22 @@
                 <tbody id="tBody"></tbody>
             </table>
         </div>
+        <div style="margin-top:8px;font-size:12px;color:#adb5bd;display:flex;align-items:center;gap:5px;">
+            <i class="fas fa-circle-info" style="color:#74c0fc;"></i>
+            공문은 <strong style="color:#495057;">제출마감일 순</strong>으로 자동 정렬됩니다. 마감일 헤더를 클릭하면 오름차순/내림차순 전환됩니다.
+        </div>
         <div class="pagination" id="pagination"></div>
         <div id="pageInfo"></div>
     </div>
 </div>
 
- <footer class="text-center py-8 text-slate-400 text-[10px]">
-            ©  Developed by Choi Gwang-cheol of Gurye Middle School in 2026. All rights reserved.
-        </footer>
+<footer>
+    Developed by Choi Gwang-cheol of Gurye Middle School in 2026. All rights reserved.
+</footer>
 
 <script>
     // ★ 배포 URL (본인 것으로 유지)
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLdIeaxSC5b0cvRuG6lzi62j1Nd4C55xvqHSunfhZ_BvytBaROholS0K98AKeY-YJA/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec';
 
     const PAGE_SIZE = 15;
     let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false;
@@ -245,6 +279,18 @@
         $('debugBtn').classList.toggle('active',dbgVisible);
     }
     function isOk(r){ return r&&(r.status==='success'||r.result==='success'||r.ok===true); }
+
+    /* ── 라디오 버튼 → hidden input 동기화 ─── */
+    document.querySelectorAll('input[name="contentType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            $('contentTypeVal').value = radio.value;
+        });
+    });
+    document.querySelectorAll('input[name="eContentType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            $('eContentType').value = radio.value;
+        });
+    });
 
     /* ── JSONP ──────────────────────────────── */
     function rpc(params, ms=15000) {
@@ -313,7 +359,12 @@
                 <td style="color:#adb5bd;text-align:center;">${start+i+1}</td>
                 <td style="font-size:12px;color:#868e96;">${safe(row.docNum)||'-'}</td>
                 <td><strong>${safe(row.title)}</strong></td>
-                <td class="content-cell" title="${safe(row.content)||''}">${safe(row.content)||'-'}</td>
+                <td class="content-cell" title="${safe(row.content)||''}">
+                    ${row.contentType==='필수'
+                        ?`<span style="display:inline-block;background:#fff5f5;color:#fa5252;border:1px solid #ffc9c9;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-right:4px;">필수</span>`
+                        :row.content?`<span style="display:inline-block;background:#f1f3f5;color:#868e96;border:1px solid #dee2e6;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:600;margin-right:4px;">선택</span>`:''}
+                    ${safe(row.content)||'-'}
+                </td>
                 <td style="${dueCss}">${row.dueDate||'-'}</td>
                 <td>${done
                     ?`<span class="badge badge-done"><i class="fas fa-check"></i> ${row.submitDate}</span>`
@@ -382,7 +433,9 @@
         try{
             const r=await rpc(p);
             toast(isOk(r)?'✅ 등록되었습니다!':'등록됐을 수 있습니다.',isOk(r)?'success':'');
-            e.target.reset(); await fetchData();
+            e.target.reset();
+            $('ctOptional').checked=true; $('contentTypeVal').value='선택';
+            await fetchData();
         }catch(err){toast('등록 실패: '+err.message,'error');if(!dbgVisible)toggleDebug();}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> 업무 등록하기';}
     };
@@ -410,6 +463,10 @@
         $('eSubmitDate').value=row.submitDate||'';
         $('eContent').value=row.content||'';
         $('eMemo').value=row.memo||'';
+        // 선택/필수 라디오 복원
+        const ct=row.contentType||'선택';
+        $('eContentType').value=ct;
+        document.querySelectorAll('input[name="eContentType"]').forEach(r=>{ r.checked=(r.value===ct); });
         $('editModal').classList.add('open');
     }
     function closeModal(){ $('editModal').classList.remove('open'); }
@@ -420,7 +477,7 @@
         if(!title){toast('공문제목은 필수입니다.','error');return;}
         const p={action:'edit',rowNum:$('eRowNum').value,docNum:$('eDocNum').value.trim(),
             title,dueDate:$('eDueDate').value,submitDate:$('eSubmitDate').value,
-            content:$('eContent').value.trim(),memo:$('eMemo').value.trim()};
+            content:$('eContent').value.trim(),contentType:$('eContentType').value,memo:$('eMemo').value.trim()};
         closeModal();
         try{
             const r=await rpc(p);
@@ -443,5 +500,3 @@
 </script>
 </body>
 </html>
-
-
