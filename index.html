@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업무 스케줄러 - 공문 관리</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f0f2f5;
+        }
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        textarea {
+            height: 80px;
+            resize: none;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #357abd;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        #status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>업무 스케줄러</h2>
+    <form id="scheduleForm">
+        <div class="form-group">
+            <label>공문번호</label>
+            <input type="text" id="docNum" name="docNum" placeholder="예: 2024-001" required>
+        </div>
+        <div class="form-group">
+            <label>공문제목</label>
+            <input type="text" id="title" name="title" placeholder="업무명을 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label>제출일</label>
+            <input type="date" id="submitDate" name="submitDate" required>
+        </div>
+        <div class="form-group">
+            <label>제출마감일</label>
+            <input type="date" id="dueDate" name="dueDate" required>
+        </div>
+        <div class="form-group">
+            <label>비고</label>
+            <textarea id="memo" name="memo" placeholder="추가 전달사항"></textarea>
+        </div>
+        <button type="submit" id="submitBtn">데이터 등록하기</button>
+    </form>
+    <div id="status"></div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx_lT8KhleCv5fM7bWBmXLfW8dXCyQLL8QzixE_DF3bylCYIdzFoNU4wbkXqqNwbk7u/exec';
+    const form = document.getElementById('scheduleForm');
+    const status = document.getElementById('status');
+    const btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        status.innerText = '데이터 전송 중...';
+        status.style.color = 'blue';
+
+        // 앱스스크립트의 addData 함수에 맞게 데이터 구성
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => data[key] = value);
+
+        // Fetch를 이용한 데이터 전송 (JSONP 대신 앱스스크립트 호출)
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors', // 보안 정책상 no-cors 사용 시 응답 확인은 제한적임
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            status.innerText = '등록 완료! 마감일 순으로 정렬되었습니다.';
+            status.style.color = 'green';
+            form.reset();
+            btn.disabled = false;
+        })
+        .catch(error => {
+            status.innerText = '오류 발생: ' + error.message;
+            status.style.color = 'red';
+            btn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
