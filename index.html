@@ -112,8 +112,8 @@
         .badge-pending { background: #fff5f5; color: #fa5252; border-color: #ffc9c9; cursor: pointer; }
         .badge-pending:hover { background: #ffe3e3; }
         .badge-done { background: #ebfbee; color: #40c057; border-color: #b2f2bb; cursor: default; }
-        .tag-req  { display:inline-block;background:#fff5f5;color:#fa5252;border:1px solid #ffc9c9;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-right:3px;vertical-align:middle; }
-        .tag-opt  { display:inline-block;background:#f1f3f5;color:#868e96;border:1px solid #dee2e6;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:600;margin-right:3px;vertical-align:middle; }
+        .tag-req  { display:inline-block;background:#fff5f5;color:#fa5252;border:1px solid #ffc9c9;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;margin-left:5px;vertical-align:middle; }
+        .tag-opt  { display:inline-block;background:#f1f3f5;color:#868e96;border:1px solid #dee2e6;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:600;margin-left:5px;vertical-align:middle; }
 
         /* 액션 */
         .act-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
@@ -187,13 +187,13 @@
             <label style="display:flex;align-items:center;gap:12px;">
                 업무메모
                 <span class="radio-group">
-                    <label class="radio-label" style="color:#495057;">
-                        <input type="radio" name="eContentType" value="선택" checked
-                            style="accent-color:var(--primary);"> 선택
-                    </label>
                     <label class="radio-label" style="color:#fa5252;">
                         <input type="radio" name="eContentType" value="필수"
                             style="accent-color:#fa5252;"> 필수
+                    </label>
+                    <label class="radio-label" style="color:#495057;">
+                        <input type="radio" name="eContentType" value="선택" checked
+                            style="accent-color:var(--primary);"> 선택
                     </label>
                 </span>
             </label>
@@ -269,13 +269,13 @@
                 <label style="display:flex;align-items:center;gap:12px;">
                     업무메모 <span style="opacity:.5;font-weight:400;font-size:11px;">(선택)</span>
                     <span class="radio-group">
-                        <label class="radio-label" style="color:#495057;">
-                            <input type="radio" name="contentType" id="ctOptional" value="선택" checked
-                                style="accent-color:var(--primary);"> 선택
-                        </label>
                         <label class="radio-label" style="color:#fa5252;">
                             <input type="radio" name="contentType" id="ctRequired" value="필수"
                                 style="accent-color:#fa5252;"> 필수
+                        </label>
+                        <label class="radio-label" style="color:#495057;">
+                            <input type="radio" name="contentType" id="ctOptional" value="선택" checked
+                                style="accent-color:var(--primary);"> 선택
                         </label>
                     </span>
                 </label>
@@ -648,12 +648,16 @@
                 const diff=(new Date(row.dueDate)-new Date())/86400000;
                 dueCss=diff<0?'color:#e03131;font-weight:700;':diff<=3?'color:#f76707;font-weight:700;':'';
             }
+            
+            // 태그 생성 (공문제목 옆에 표시)
             const isReq=(row.contentType==='필수');
-            const tag=row.content
-                ?(isReq?'<span class="tag-req">필수</span>':'<span class="tag-opt">선택</span>')
-                :'';
+            const tag = row.content
+                ? (isReq ? '<span class="tag-req">필수</span>' : '<span class="tag-opt">선택</span>')
+                : '';
+            
+            // 내용은 태그 없이
             const contentHtml = row.content
-                ? tag + (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
+                ? (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
                 : '-';
 
             const dueDateStr = formatDateWithDay(row.dueDate);
@@ -662,7 +666,7 @@
             tr.innerHTML=`
                 <td style="color:#adb5bd;text-align:center;vertical-align:middle;">${start+i+1}</td>
                 <td style="font-size:12px;color:#868e96;vertical-align:middle;">${safe(row.docNum)||'-'}</td>
-                <td style="vertical-align:middle;"><strong>${safe(row.title)}</strong></td>
+                <td style="vertical-align:middle;"><strong>${safe(row.title)}</strong>${tag}</td>
                 <td class="content-cell">${contentHtml}</td>
                 <td style="${dueCss}vertical-align:middle;">${dueDateStr}</td>
                 <td style="vertical-align:middle;">${done
@@ -819,3 +823,6 @@
 </script>
 </body>
 </html>
+
+
+이제 공문제목 옆에 **[필수]** 또는 **[선택]** 태그가 표시되고, 라디오 버튼 순서도 **필수/선택**으로 변경되었습니다! 🎉✨
