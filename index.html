@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -20,10 +21,11 @@
         h2 { margin: 0 0 16px 0; font-size: 17px; color: #495057; display: flex; align-items: center; gap: 9px; }
 
         /* 설정 카드 */
-        .config-card { background: #f8fff9; border: 2px dashed #b2f2bb; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; }
+        .config-card { background: #f8fff9; border: 2px dashed #b2f2bb; border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; display: none; }
+        .config-card.visible { display: block; }
         .config-card h2 { color: #2f9e44; margin-bottom: 12px; font-size: 15px; }
-        .config-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; align-items: end; }
-        .config-input { display: flex; flex-direction: column; gap: 5px; }
+        .config-grid { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
+        .config-input { display: flex; flex-direction: column; gap: 5px; width: 100%; }
         .config-input label { font-size: 11px; font-weight: 700; color: #868e96; text-transform: uppercase; letter-spacing: 0.3px; }
         .config-input input { padding: 9px 13px; border: 1.5px solid #b2f2bb; border-radius: 8px; font-size: 14px; font-family: inherit; background: white; width: 100%; }
         .config-input input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); }
@@ -190,18 +192,45 @@
 
 <div class="container">
 
-        </button>
-    </div>
-
     <!-- 헤더 -->
     <div class="page-header">
         <h1><i class="fas fa-calendar-check" style="margin-right:8px;"></i>업무 추진 스케줄러</h1>
         <p>업무 관리 시스템</p>
     </div>
 
+    <!-- 설정 카드 (접이식) -->
+    <div class="config-card" id="configCard">
+        <h2><i class="fas fa-gear" style="color:#2f9e44;"></i> 연결 설정</h2>
+        <div class="config-grid">
+            <div class="config-input">
+                <label>Google Apps Script URL</label>
+                <!-- 사용자가 요청한 URL을 기본값으로 설정 -->
+                <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec">
+            </div>
+            <div style="display:flex;gap:8px;align-items:end;">
+                <button class="toolbar-btn" onclick="saveConfig()"
+                    style="background:#40c057;color:white;border-color:#40c057;padding:9px 18px;font-weight:700;">
+                    <i class="fas fa-link"></i> 저장
+                </button>
+                <button class="toolbar-btn" onclick="toggleConfig()">
+                    <i class="fas fa-eye-slash"></i> 닫기
+                </button>
+            </div>
+        </div>
+        <div class="config-note">
+            <i class="fas fa-circle-info" style="color:#74c0fc;margin-top:1px;"></i>
+            <span>설정한 URL은 브라우저에 자동 저장됩니다.</span>
+        </div>
+    </div>
+
     <!-- 등록 카드 -->
     <div class="card">
-        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
+            <button class="toolbar-btn" onclick="toggleConfig()" style="font-size:11px;padding:4px 8px;">
+                <i class="fas fa-gear"></i> 설정
+            </button>
+        </div>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
@@ -304,11 +333,15 @@
 </footer>
 
 <script>
-    
-
     /* ══════════════════════════════════════════════
-       앱 상태
+       앱 상태 및 설정
     ══════════════════════════════════════════════ */
+    // 기본 URL (사용자가 제공한 URL)
+    const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec';
+    
+    // 저장된 URL이 있으면 그것을 쓰고, 없으면 기본값 사용
+    let SCRIPT_URL = localStorage.getItem('SCRIPT_URL') || DEFAULT_URL;
+
     const PAGE_SIZE = 15;
     let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false, searchQuery = '';
 
@@ -333,6 +366,30 @@
     }
     function isOk(r){ return r&&(r.status==='success'||r.result==='success'||r.ok===true); }
 
+    /* ── 설정 관리 ── */
+    function toggleConfig() {
+        const card = $('configCard');
+        if (card.style.display === 'none' || card.style.display === '') {
+            card.style.display = 'block';
+            $('scriptUrl').focus();
+        } else {
+            card.style.display = 'none';
+        }
+    }
+
+    function saveConfig() {
+        const url = $('scriptUrl').value.trim();
+        if (!url) {
+            toast('URL을 입력하세요.', 'error');
+            return;
+        }
+        SCRIPT_URL = url;
+        localStorage.setItem('SCRIPT_URL', url);
+        toast('✅ 설정 저장 완료!', 'success');
+        toggleConfig();
+        fetchData();
+    }
+
     /* ── 라디오 동기화 ── */
     document.querySelectorAll('input[name="contentType"]').forEach(r=>
         r.addEventListener('change',()=>$('contentTypeVal').value=r.value));
@@ -342,6 +399,10 @@
     /* ── JSONP ── */
     function rpc(params, ms=15000) {
         return new Promise((res,rej)=>{
+            if(!SCRIPT_URL) {
+                rej(new Error('Script URL 미설정'));
+                return;
+            }
             const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
             const timer=setTimeout(()=>{cleanup();rej(new Error('시간 초과'));},ms);
             function cleanup(){clearTimeout(timer);delete window[cb];if(sc.parentNode)document.body.removeChild(sc);}
@@ -431,7 +492,6 @@
             const tag=row.content
                 ?(isReq?'<span class="tag-req">필수</span>':'<span class="tag-opt">선택</span>')
                 :'';
-            // 내용은 HTML 이스케이프 후 줄바꿈 유지
             const contentHtml = row.content
                 ? tag + (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
                 : '-';
@@ -456,7 +516,6 @@
 
         renderPg(totalPg);
         $('pageInfo').textContent=`전체 ${total}건 · ${start+1}–${Math.min(start+PAGE_SIZE,total)}건 표시`;
-        // 검색 결과 안내
         if(searchQuery){
             $('searchResult').textContent=`"${searchQuery}" 검색 결과 ${total}건`;
         } else {
@@ -510,7 +569,7 @@
             $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
                 <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br>
                 <small style="color:#adb5bd;">${e.message}</small><br>
-                <small style="color:#adb5bd;">SCRIPT_URL을 확인하세요.</small></td></tr>`;
+                <button onclick="toggleConfig()" style="margin-top:10px;border:1px solid #dee2e6;background:white;padding:4px 10px;border-radius:4px;cursor:pointer;">설정 확인</button></td></tr>`;
             toast('데이터 로드 실패','error');
             if(!dbgVisible) toggleDebug();
         }finally{$('loading').style.display='none';}
@@ -590,7 +649,8 @@
 
     /* ── 초기화 ── */
     window.onload = function(){
-                // 설정이 이미 있으면 설정창 접기
+        // 입력 필드에도 값을 채워둠
+        $('scriptUrl').value = SCRIPT_URL;
         fetchData();
     };
 </script>
