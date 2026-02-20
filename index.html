@@ -30,39 +30,29 @@
         .config-input input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); }
         .config-note { font-size: 12px; color: #868e96; margin-top: 8px; display: flex; align-items: flex-start; gap: 5px; }
 
-        /* 달력 스타일 */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .calendar-header h2 { margin: 0; flex: 1; }
-        .calendar-nav { display: flex; gap: 8px; }
-        .calendar-nav button { background: none; border: 1.5px solid #dee2e6; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; color: #495057; transition: all 0.2s; }
-        .calendar-nav button:hover { background: #f1f3f5; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .calendar-day-header { text-align: center; font-size: 11px; font-weight: 700; color: #868e96; padding: 8px 4px; text-transform: uppercase; }
-        .calendar-day-header.sun { color: #fa5252; }
-        .calendar-day-header.sat { color: #228be6; }
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            border: 2px solid transparent;
-            background: #fafafa;
-        }
-        .calendar-day:hover { background: #e9faf0; }
-        .calendar-day.other-month { color: #adb5bd; background: transparent; }
-        .calendar-day.today { border-color: var(--primary); font-weight: 700; background: #ebfbee; }
-        .calendar-day.has-due { background: #e9d5ff; color: #7c3aed; font-weight: 700; }
-        .calendar-day.has-due:hover { background: #ddd6fe; }
-        .calendar-day-num { font-size: 14px; }
-        .calendar-day-count { font-size: 9px; color: #7c3aed; margin-top: 2px; }
-        .calendar-empty { background: transparent; cursor: default; }
-        .calendar-empty:hover { background: transparent; }
+        /* 달력 스타일 (3개월 가로 배치) */
+        .calendar-container { display: flex; align-items: center; gap: 12px; }
+        .calendar-nav-btn { background: none; border: 1.5px solid #dee2e6; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: #495057; transition: all 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .calendar-nav-btn:hover { background: #f1f3f5; border-color: #adb5bd; }
+        .calendars-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; flex: 1; }
+        
+        .mini-calendar { background: #fafafa; border-radius: 8px; padding: 12px; border: 2px solid transparent; transition: all 0.2s; }
+        .mini-calendar.current { background: #f8f9fa; border-color: #7c3aed; box-shadow: 0 2px 8px rgba(124,58,237,0.15); }
+        .mini-calendar.side { opacity: 0.7; }
+        
+        .mini-calendar-header { text-align: center; font-size: 13px; font-weight: 700; color: #495057; margin-bottom: 8px; }
+        .mini-calendar.current .mini-calendar-header { color: #7c3aed; }
+        
+        .mini-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .mini-day-header { text-align: center; font-size: 9px; font-weight: 600; color: #adb5bd; padding: 2px; }
+        .mini-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 10px; cursor: pointer; transition: all 0.15s; position: relative; background: white; }
+        .mini-day:hover { background: #e9faf0; }
+        .mini-day.other-month { color: #dee2e6; background: transparent; cursor: default; }
+        .mini-day.other-month:hover { background: transparent; }
+        .mini-day.today { border: 1.5px solid var(--primary); font-weight: 700; }
+        .mini-day.has-due { background: #e9d5ff; color: #7c3aed; font-weight: 700; }
+        .mini-day.has-due:hover { background: #ddd6fe; }
+        .mini-day.has-due::after { content: '•'; position: absolute; bottom: 1px; font-size: 8px; color: #7c3aed; }
 
         /* 폼 */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 12px; margin-bottom: 12px; }
@@ -297,26 +287,22 @@
         <div id="debugPanel"><strong style="font-size:12px;">🔍 통신 로그</strong><div id="debugLog"></div></div>
     </div>
 
-    <!-- ══════════════ 📅 달력 카드 ══════════════ -->
+    <!-- ══════════════ 📅 3개월 달력 카드 ══════════════ -->
     <div class="card">
-        <div class="calendar-header">
-            <h2><i class="fas fa-calendar-days" style="color:#7c3aed;"></i> <span id="calendarTitle">2026년 2월</span></h2>
-            <div class="calendar-nav">
-                <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i> 이전</button>
-                <button onclick="changeMonth(0)">오늘</button>
-                <button onclick="changeMonth(1)">다음 <i class="fas fa-chevron-right"></i></button>
+        <h2 style="margin-bottom:12px;"><i class="fas fa-calendar-days" style="color:#7c3aed;"></i> 월간 업무 일정</h2>
+        <div class="calendar-container">
+            <button class="calendar-nav-btn" onclick="changeMonth(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="calendars-wrapper">
+                <div id="calendar-prev" class="mini-calendar side"></div>
+                <div id="calendar-current" class="mini-calendar current"></div>
+                <div id="calendar-next" class="mini-calendar side"></div>
             </div>
+            <button class="calendar-nav-btn" onclick="changeMonth(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
-        <div class="calendar-grid">
-            <div class="calendar-day-header sun">일</div>
-            <div class="calendar-day-header">월</div>
-            <div class="calendar-day-header">화</div>
-            <div class="calendar-day-header">수</div>
-            <div class="calendar-day-header">목</div>
-            <div class="calendar-day-header">금</div>
-            <div class="calendar-day-header sat">토</div>
-        </div>
-        <div class="calendar-grid" id="calendarBody"></div>
     </div>
 
     <!-- 현황 카드 -->
@@ -445,17 +431,18 @@
         fetchData();
     }
 
-    /* ══════════════ 📅 달력 관련 함수 ══════════════ */
-    function renderCalendar() {
-        const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
-        $('calendarTitle').textContent = `${currentYear}년 ${monthNames[currentMonth]}`;
+    /* ══════════════ 📅 3개월 달력 렌더링 ══════════════ */
+    function renderMiniCalendar(year, month, containerId) {
+        const container = $(containerId);
+        if (!container) return;
 
-        const firstDay = new Date(currentYear, currentMonth, 1);
-        const lastDay = new Date(currentYear, currentMonth + 1, 0);
-        const prevLastDay = new Date(currentYear, currentMonth, 0);
+        const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
         
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
         const firstDayOfWeek = firstDay.getDay();
         const lastDate = lastDay.getDate();
+        const prevLastDay = new Date(year, month, 0);
         const prevLastDate = prevLastDay.getDate();
 
         const today = new Date();
@@ -472,74 +459,84 @@
             }
         });
 
-        const calBody = $('calendarBody');
-        calBody.innerHTML = '';
-
+        let html = `<div class="mini-calendar-header">${year}년 ${monthNames[month]}</div>`;
+        html += '<div class="mini-calendar-grid">';
+        
+        // 요일 헤더
+        const dayHeaders = ['일', '월', '화', '수', '목', '금', '토'];
+        dayHeaders.forEach(d => {
+            html += `<div class="mini-day-header">${d}</div>`;
+        });
+        
         // 이전 달 날짜
         for (let i = firstDayOfWeek - 1; i >= 0; i--) {
             const day = prevLastDate - i;
-            const cell = document.createElement('div');
-            cell.className = 'calendar-day other-month calendar-empty';
-            cell.innerHTML = `<span class="calendar-day-num">${day}</span>`;
-            calBody.appendChild(cell);
+            html += `<div class="mini-day other-month">${day}</div>`;
         }
 
         // 이번 달 날짜
         for (let day = 1; day <= lastDate; day++) {
-            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const cell = document.createElement('div');
-            cell.className = 'calendar-day';
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            let classes = 'mini-day';
             
             if (dateStr === todayStr) {
-                cell.classList.add('today');
+                classes += ' today';
             }
             
             if (dueDateMap[dateStr]) {
-                cell.classList.add('has-due');
-                cell.innerHTML = `
-                    <span class="calendar-day-num">${day}</span>
-                    <span class="calendar-day-count">${dueDateMap[dateStr]}건</span>
-                `;
-            } else {
-                cell.innerHTML = `<span class="calendar-day-num">${day}</span>`;
+                classes += ' has-due';
             }
             
-            cell.onclick = () => clickDate(dateStr);
-            calBody.appendChild(cell);
+            html += `<div class="${classes}" onclick="clickDate('${dateStr}')">${day}</div>`;
         }
 
         // 다음 달 날짜
-        const totalCells = calBody.children.length;
+        const totalCells = firstDayOfWeek + lastDate;
         const remainCells = (7 - (totalCells % 7)) % 7;
         for (let day = 1; day <= remainCells; day++) {
-            const cell = document.createElement('div');
-            cell.className = 'calendar-day other-month calendar-empty';
-            cell.innerHTML = `<span class="calendar-day-num">${day}</span>`;
-            calBody.appendChild(cell);
+            html += `<div class="mini-day other-month">${day}</div>`;
         }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function renderCalendars() {
+        // 이전 달
+        let prevMonth = currentMonth - 1;
+        let prevYear = currentYear;
+        if (prevMonth < 0) {
+            prevMonth = 11;
+            prevYear--;
+        }
+        renderMiniCalendar(prevYear, prevMonth, 'calendar-prev');
+
+        // 현재 달
+        renderMiniCalendar(currentYear, currentMonth, 'calendar-current');
+
+        // 다음 달
+        let nextMonth = currentMonth + 1;
+        let nextYear = currentYear;
+        if (nextMonth > 11) {
+            nextMonth = 0;
+            nextYear++;
+        }
+        renderMiniCalendar(nextYear, nextMonth, 'calendar-next');
     }
 
     function changeMonth(delta) {
-        if (delta === 0) {
-            // 오늘로 이동
-            const today = new Date();
-            currentYear = today.getFullYear();
-            currentMonth = today.getMonth();
-        } else {
-            currentMonth += delta;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            } else if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
+        currentMonth += delta;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
         }
-        renderCalendar();
+        renderCalendars();
     }
 
     function clickDate(dateStr) {
-        // 해당 날짜의 업무만 필터링하여 표시
         const tasks = allData.filter(r => r.dueDate === dateStr);
         if (tasks.length === 0) {
             toast(`${dateStr}에 마감인 업무가 없습니다.`, '');
@@ -730,7 +727,7 @@
                 page=totalPg;
             }
             render();
-            renderCalendar(); // 달력도 업데이트
+            renderCalendars(); // 3개월 달력 업데이트
         }catch(e){
             log('조회 실패: '+e.message,'err');
             $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
@@ -822,5 +819,3 @@
 </script>
 </body>
 </html>
-
-이제 페이지를 열면 **업무 등록 카드** 아래에 **달력**이 나타나고, 제출마감일이 있는 날짜는 **연한 보라색**으로 표시됩니다! 🎉📅
