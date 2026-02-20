@@ -30,6 +30,40 @@
         .config-input input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(64,192,87,0.12); }
         .config-note { font-size: 12px; color: #868e96; margin-top: 8px; display: flex; align-items: flex-start; gap: 5px; }
 
+        /* 달력 스타일 */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .calendar-header h2 { margin: 0; flex: 1; }
+        .calendar-nav { display: flex; gap: 8px; }
+        .calendar-nav button { background: none; border: 1.5px solid #dee2e6; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; color: #495057; transition: all 0.2s; }
+        .calendar-nav button:hover { background: #f1f3f5; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .calendar-day-header { text-align: center; font-size: 11px; font-weight: 700; color: #868e96; padding: 8px 4px; text-transform: uppercase; }
+        .calendar-day-header.sun { color: #fa5252; }
+        .calendar-day-header.sat { color: #228be6; }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            border: 2px solid transparent;
+            background: #fafafa;
+        }
+        .calendar-day:hover { background: #e9faf0; }
+        .calendar-day.other-month { color: #adb5bd; background: transparent; }
+        .calendar-day.today { border-color: var(--primary); font-weight: 700; background: #ebfbee; }
+        .calendar-day.has-due { background: #e9d5ff; color: #7c3aed; font-weight: 700; }
+        .calendar-day.has-due:hover { background: #ddd6fe; }
+        .calendar-day-num { font-size: 14px; }
+        .calendar-day-count { font-size: 9px; color: #7c3aed; margin-top: 2px; }
+        .calendar-empty { background: transparent; cursor: default; }
+        .calendar-empty:hover { background: transparent; }
+
         /* 폼 */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 12px; margin-bottom: 12px; }
         .input-group { display: flex; flex-direction: column; gap: 5px; }
@@ -62,20 +96,18 @@
         /* 테이블 */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 980px; }
-        th { background: #f8f9fa; padding: 10px 10px; text-align: left; border-bottom: 2px solid #e9ecef; color: #495057; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+        th { background: #f8f9fa; padding: 10px 10px; text-align: center; border-bottom: 2px solid #e9ecef; color: #495057; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
         th.sortable { cursor: pointer; user-select: none; }
         th.sortable:hover { background: #e9ecef; }
         td { padding: 10px 10px; border-bottom: 1px solid #f1f3f5; vertical-align: top; }
         tr:hover td { background: #f8fff9; }
 
-        /* 업무메모 셀 — 줄바꿈 허용, 최대 3줄 */
         td.content-cell {
             white-space: pre-wrap;
             word-break: break-word;
             max-width: 320px;
             line-height: 1.5;
         }
-        /* 비고 셀 — 좁게 */
         td.memo-cell {
             white-space: nowrap;
             overflow: hidden;
@@ -157,13 +189,13 @@
                 <input type="date" id="eDueDate">
             </div>
             <div class="input-group">
-                <label>제출일(완료)</label>
+                <label>제출일(완료일)</label>
                 <input type="date" id="eSubmitDate">
             </div>
         </div>
         <div class="input-group" style="margin-top:12px;">
             <label style="display:flex;align-items:center;gap:12px;">
-                업무메모 또는 제출내용
+                업무메모
                 <span class="radio-group">
                     <label class="radio-label" style="color:#495057;">
                         <input type="radio" name="eContentType" value="선택" checked
@@ -175,7 +207,7 @@
                     </label>
                 </span>
             </label>
-            <textarea id="eContent" rows="3" placeholder="업무메모 또는 제출내용을 입력하세요"></textarea>
+            <textarea id="eContent" rows="3" placeholder="업무메모를 입력하세요"></textarea>
             <input type="hidden" id="eContentType" value="선택">
         </div>
         <div class="input-group" style="margin-top:12px;">
@@ -203,7 +235,6 @@
         <div class="config-grid">
             <div class="config-input">
                 <label>Google Apps Script URL</label>
-                <!-- 사용자가 요청한 URL을 기본값으로 설정 -->
                 <input type="text" id="scriptUrl" value="https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec">
             </div>
             <div style="display:flex;gap:8px;align-items:end;">
@@ -224,12 +255,7 @@
 
     <!-- 등록 카드 -->
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
-            <button class="toolbar-btn" onclick="toggleConfig()" style="font-size:11px;padding:4px 8px;">
-                <i class="fas fa-gear"></i> 설정
-            </button>
-        </div>
+        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
@@ -251,7 +277,7 @@
             </div>
             <div class="input-group" style="margin-bottom:13px;">
                 <label style="display:flex;align-items:center;gap:12px;">
-                    업무메모 또는 제출내용 <span style="opacity:.5;font-weight:400;font-size:11px;">(선택)</span>
+                    업무메모 <span style="opacity:.5;font-weight:400;font-size:11px;">(선택)</span>
                     <span class="radio-group">
                         <label class="radio-label" style="color:#495057;">
                             <input type="radio" name="contentType" id="ctOptional" value="선택" checked
@@ -263,12 +289,34 @@
                         </label>
                     </span>
                 </label>
-                <textarea id="content" name="content" rows="2" placeholder="업무메모 또는 제출내용을 입력하세요"></textarea>
+                <textarea id="content" name="content" rows="2" placeholder="업무메모를 입력하세요"></textarea>
                 <input type="hidden" id="contentTypeVal" name="contentType" value="선택">
             </div>
             <button type="submit" id="submitBtn"><i class="fas fa-plus-circle"></i> 업무 등록하기</button>
         </form>
         <div id="debugPanel"><strong style="font-size:12px;">🔍 통신 로그</strong><div id="debugLog"></div></div>
+    </div>
+
+    <!-- ══════════════ 📅 달력 카드 ══════════════ -->
+    <div class="card">
+        <div class="calendar-header">
+            <h2><i class="fas fa-calendar-days" style="color:#7c3aed;"></i> <span id="calendarTitle">2026년 2월</span></h2>
+            <div class="calendar-nav">
+                <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i> 이전</button>
+                <button onclick="changeMonth(0)">오늘</button>
+                <button onclick="changeMonth(1)">다음 <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div class="calendar-grid">
+            <div class="calendar-day-header sun">일</div>
+            <div class="calendar-day-header">월</div>
+            <div class="calendar-day-header">화</div>
+            <div class="calendar-day-header">수</div>
+            <div class="calendar-day-header">목</div>
+            <div class="calendar-day-header">금</div>
+            <div class="calendar-day-header sat">토</div>
+        </div>
+        <div class="calendar-grid" id="calendarBody"></div>
     </div>
 
     <!-- 현황 카드 -->
@@ -303,16 +351,16 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width:38px;text-align:center;">#</th>
+                        <th style="width:38px;">#</th>
                         <th style="width:120px;">공문번호</th>
                         <th style="min-width:160px;">공문제목</th>
                         <th style="min-width:260px;">업무메모,제출내용</th>
-                        <th class="sortable" id="thDue" onclick="toggleSort()" style="width:115px;">
+                        <th class="sortable" id="thDue" onclick="toggleSort()" style="width:140px;">
                             제출마감일 <span id="sortIcon">▲</span>
                         </th>
-                        <th style="width:115px;">제출일(완료)</th>
+                        <th style="width:140px;">제출일(완료일)</th>
                         <th style="width:90px;">비고</th>
-                        <th style="width:80px;text-align:center;">관리</th>
+                        <th style="width:80px;">관리</th>
                     </tr>
                 </thead>
                 <tbody id="tBody"></tbody>
@@ -335,17 +383,25 @@
     /* ══════════════════════════════════════════════
        앱 상태 및 설정
     ══════════════════════════════════════════════ */
-    // 기본 URL (사용자가 제공한 URL)
     const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec';
-    
-    // 저장된 URL이 있으면 그것을 쓰고, 없으면 기본값 사용
     let SCRIPT_URL = localStorage.getItem('SCRIPT_URL') || DEFAULT_URL;
 
     const PAGE_SIZE = 15;
     let allData = [], filter = 'all', page = 1, sortDir = 'asc', dbgVisible = false, searchQuery = '';
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth(); // 0-11
 
     const $ = id => document.getElementById(id);
     const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
+
+    // 요일 표시 함수
+    function formatDateWithDay(dateStr) {
+        if (!dateStr || !dateStr.trim()) return '-';
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const d = new Date(dateStr);
+        const dayName = days[d.getDay()];
+        return `${dateStr} (${dayName})`;
+    }
 
     function toast(msg, type='') {
         const t = $('toast'); t.textContent = msg;
@@ -387,6 +443,115 @@
         toast('✅ 설정 저장 완료!', 'success');
         toggleConfig();
         fetchData();
+    }
+
+    /* ══════════════ 📅 달력 관련 함수 ══════════════ */
+    function renderCalendar() {
+        const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+        $('calendarTitle').textContent = `${currentYear}년 ${monthNames[currentMonth]}`;
+
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const prevLastDay = new Date(currentYear, currentMonth, 0);
+        
+        const firstDayOfWeek = firstDay.getDay();
+        const lastDate = lastDay.getDate();
+        const prevLastDate = prevLastDay.getDate();
+
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+        // 제출마감일 맵 생성
+        const dueDateMap = {};
+        allData.forEach(row => {
+            if (row.dueDate && row.dueDate.trim()) {
+                if (!dueDateMap[row.dueDate]) {
+                    dueDateMap[row.dueDate] = 0;
+                }
+                dueDateMap[row.dueDate]++;
+            }
+        });
+
+        const calBody = $('calendarBody');
+        calBody.innerHTML = '';
+
+        // 이전 달 날짜
+        for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+            const day = prevLastDate - i;
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day other-month calendar-empty';
+            cell.innerHTML = `<span class="calendar-day-num">${day}</span>`;
+            calBody.appendChild(cell);
+        }
+
+        // 이번 달 날짜
+        for (let day = 1; day <= lastDate; day++) {
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day';
+            
+            if (dateStr === todayStr) {
+                cell.classList.add('today');
+            }
+            
+            if (dueDateMap[dateStr]) {
+                cell.classList.add('has-due');
+                cell.innerHTML = `
+                    <span class="calendar-day-num">${day}</span>
+                    <span class="calendar-day-count">${dueDateMap[dateStr]}건</span>
+                `;
+            } else {
+                cell.innerHTML = `<span class="calendar-day-num">${day}</span>`;
+            }
+            
+            cell.onclick = () => clickDate(dateStr);
+            calBody.appendChild(cell);
+        }
+
+        // 다음 달 날짜
+        const totalCells = calBody.children.length;
+        const remainCells = (7 - (totalCells % 7)) % 7;
+        for (let day = 1; day <= remainCells; day++) {
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day other-month calendar-empty';
+            cell.innerHTML = `<span class="calendar-day-num">${day}</span>`;
+            calBody.appendChild(cell);
+        }
+    }
+
+    function changeMonth(delta) {
+        if (delta === 0) {
+            // 오늘로 이동
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+        } else {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+        }
+        renderCalendar();
+    }
+
+    function clickDate(dateStr) {
+        // 해당 날짜의 업무만 필터링하여 표시
+        const tasks = allData.filter(r => r.dueDate === dateStr);
+        if (tasks.length === 0) {
+            toast(`${dateStr}에 마감인 업무가 없습니다.`, '');
+            return;
+        }
+        
+        let msg = `📅 ${dateStr} 제출마감\n\n`;
+        tasks.forEach((t, i) => {
+            const status = (t.submitDate && t.submitDate.trim()) ? '✅' : '⏰';
+            msg += `${i+1}. ${status} ${t.title}\n`;
+        });
+        alert(msg);
     }
 
     /* ── 라디오 동기화 ── */
@@ -448,7 +613,6 @@
         let d=[...allData];
         if(filter==='pending') d=d.filter(r=>!r.submitDate||!r.submitDate.trim());
         if(filter==='done')    d=d.filter(r=>r.submitDate&&r.submitDate.trim());
-        // 검색 필터
         if(searchQuery){
             const q=searchQuery.toLowerCase();
             d=d.filter(r=>
@@ -495,14 +659,17 @@
                 ? tag + (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
                 : '-';
 
+            const dueDateStr = formatDateWithDay(row.dueDate);
+            const submitDateStr = done ? formatDateWithDay(row.submitDate) : '';
+
             tr.innerHTML=`
                 <td style="color:#adb5bd;text-align:center;vertical-align:middle;">${start+i+1}</td>
                 <td style="font-size:12px;color:#868e96;vertical-align:middle;">${safe(row.docNum)||'-'}</td>
                 <td style="vertical-align:middle;"><strong>${safe(row.title)}</strong></td>
                 <td class="content-cell">${contentHtml}</td>
-                <td style="${dueCss}vertical-align:middle;">${row.dueDate||'-'}</td>
+                <td style="${dueCss}vertical-align:middle;">${dueDateStr}</td>
                 <td style="vertical-align:middle;">${done
-                    ?`<span class="badge badge-done"><i class="fas fa-check"></i> ${row.submitDate}</span>`
+                    ?`<span class="badge badge-done"><i class="fas fa-check"></i> ${submitDateStr}</span>`
                     :`<button class="badge badge-pending" onclick="markDone(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-clock"></i> 미제출</button>`}
                 </td>
                 <td class="memo-cell" title="${safe(row.memo)||''}">${safe(row.memo)||'-'}</td>
@@ -563,6 +730,7 @@
                 page=totalPg;
             }
             render();
+            renderCalendar(); // 달력도 업데이트
         }catch(e){
             log('조회 실패: '+e.message,'err');
             $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
@@ -648,7 +816,6 @@
 
     /* ── 초기화 ── */
     window.onload = function(){
-        // 입력 필드에도 값을 채워둠
         $('scriptUrl').value = SCRIPT_URL;
         fetchData();
     };
@@ -656,4 +823,4 @@
 </body>
 </html>
 
-
+이제 페이지를 열면 **업무 등록 카드** 아래에 **달력**이 나타나고, 제출마감일이 있는 날짜는 **연한 보라색**으로 표시됩니다! 🎉📅
