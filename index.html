@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">업무 스케줄러</title>
+    <title>업무 스케줄러</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --primary: #40c057; --primary-hover: #37b24d; --bg: #f1f3f5; --text: #212529; }
@@ -67,7 +67,7 @@
         td { padding: 10px 10px; border-bottom: 1px solid #f1f3f5; vertical-align: top; }
         tr:hover td { background: #f8fff9; }
 
-        /* 제출할 내용 셀 — 줄바꿈 허용, 최대 3줄 */
+        /* 업무메모 셀 — 줄바꿈 허용, 최대 3줄 */
         td.content-cell {
             white-space: pre-wrap;
             word-break: break-word;
@@ -162,7 +162,7 @@
         </div>
         <div class="input-group" style="margin-top:12px;">
             <label style="display:flex;align-items:center;gap:12px;">
-                제출할 내용
+                업무메모
                 <span class="radio-group">
                     <label class="radio-label" style="color:#495057;">
                         <input type="radio" name="eContentType" value="선택" checked
@@ -174,7 +174,7 @@
                     </label>
                 </span>
             </label>
-            <textarea id="eContent" rows="3" placeholder="제출할 내용을 입력하세요"></textarea>
+            <textarea id="eContent" rows="3" placeholder="업무메모를 입력하세요"></textarea>
             <input type="hidden" id="eContentType" value="선택">
         </div>
         <div class="input-group" style="margin-top:12px;">
@@ -190,47 +190,18 @@
 
 <div class="container">
 
-    <!-- ══════════════ 학교 설정 카드 ══════════════ -->
-    <div class="config-card" id="configCard">
-        <h2><i class="fas fa-gear" style="color:var(--primary);"></i> 학교 설정 <span style="font-size:12px;font-weight:400;color:#868e96;margin-left:4px;">— 처음 한 번만 설정하세요</span></h2>
-        <div class="config-grid">
-            <div class="config-input">
-                <label>학교명</label>
-                <input type="text" id="cfgSchool" placeholder="예: 구례중학교" maxlength="30">
-            </div>
-            <div class="config-input">
-                <label>Apps Script 배포 URL</label>
-                <input type="text" id="cfgUrl" placeholder="https://script.google.com/macros/s/...">
-            </div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
-            <button onclick="saveConfig()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;">
-                <i class="fas fa-check"></i> 설정 저장
-            </button>
-            <button onclick="toggleConfig()" style="background:none;border:1.5px solid #dee2e6;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;color:#868e96;">
-                접기
-            </button>
-        </div>
-        <div class="config-note">
-            <i class="fas fa-circle-info" style="color:#74c0fc;margin-top:1px;"></i>
-            설정은 이 브라우저에 저장됩니다. URL은 Apps Script 배포 후 복사한 웹 앱 주소를 붙여넣으세요.
-        </div>
-    </div>
-    <div id="configCollapsed" style="display:none;margin-bottom:18px;">
-        <button onclick="toggleConfig()" style="background:none;border:1.5px solid #b2f2bb;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;color:#40c057;font-weight:600;">
-            <i class="fas fa-gear"></i> 학교 설정 열기
         </button>
     </div>
 
     <!-- 헤더 -->
     <div class="page-header">
-        <h1><i class="fas fa-calendar-check" style="margin-right:8px;"></i>업무 스케줄러</h1>
-        <p id="headerSchool">교무수첩</p>
+        <h1><i class="fas fa-calendar-check" style="margin-right:8px;"></i>업무 추진 스케줄러</h1>
+        <p>업무 관리 시스템</p>
     </div>
 
     <!-- 등록 카드 -->
     <div class="card">
-        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 업무 등록</h2>
+        <h2><i class="fas fa-plus-circle" style="color:var(--primary);"></i> 신규 업무 등록</h2>
         <form id="scheduleForm">
             <div class="form-grid">
                 <div class="input-group">
@@ -252,7 +223,7 @@
             </div>
             <div class="input-group" style="margin-bottom:13px;">
                 <label style="display:flex;align-items:center;gap:12px;">
-                    제출할 내용 <span style="opacity:.5;font-weight:400;font-size:11px;">(선택)</span>
+                    업무메모 <span style="opacity:.5;font-weight:400;font-size:11px;">(선택)</span>
                     <span class="radio-group">
                         <label class="radio-label" style="color:#495057;">
                             <input type="radio" name="contentType" id="ctOptional" value="선택" checked
@@ -264,7 +235,7 @@
                         </label>
                     </span>
                 </label>
-                <textarea id="content" name="content" rows="2" placeholder="제출할 내용을 입력하세요"></textarea>
+                <textarea id="content" name="content" rows="2" placeholder="업무메모를 입력하세요"></textarea>
                 <input type="hidden" id="contentTypeVal" name="contentType" value="선택">
             </div>
             <button type="submit" id="submitBtn"><i class="fas fa-plus-circle"></i> 업무 등록하기</button>
@@ -289,7 +260,7 @@
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
             <div style="position:relative;flex:1;max-width:420px;">
                 <i class="fas fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#adb5bd;font-size:14px;pointer-events:none;"></i>
-                <input type="text" id="searchInput" placeholder="공문제목 또는 제출할 내용으로 검색..."
+                <input type="text" id="searchInput" placeholder="공문제목 또는 업무메모로 검색..."
                     style="padding:9px 12px 9px 36px;border:1.5px solid #dee2e6;border-radius:8px;font-size:14px;font-family:inherit;width:100%;background:#fafafa;transition:border-color 0.2s;"
                     oninput="onSearch()" onfocus="this.style.borderColor='#40c057'" onblur="this.style.borderColor='#dee2e6'">
             </div>
@@ -307,7 +278,7 @@
                         <th style="width:38px;text-align:center;">#</th>
                         <th style="width:120px;">공문번호</th>
                         <th style="min-width:160px;">공문제목</th>
-                        <th style="min-width:260px;">제출할 내용</th>
+                        <th style="min-width:260px;">업무메모</th>
                         <th class="sortable" id="thDue" onclick="toggleSort()" style="width:115px;">
                             제출마감일 <span id="sortIcon">▲</span>
                         </th>
@@ -333,43 +304,7 @@
 </footer>
 
 <script>
-    /* ══════════════════════════════════════════════
-       ★ 학교 설정 (localStorage 저장/로드)
-    ══════════════════════════════════════════════ */
-    const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxv4I0lCuyTw02DiuB_JQZ76j42y_fnkI1bVvQYZAXZ5XUZ7PdHJJ1fxOKAaGMzjFJW/exec';
-
-    let SCRIPT_URL = localStorage.getItem('sched_url') || DEFAULT_URL;
-    let SCHOOL     = localStorage.getItem('sched_school') || '구례중학교';
-
-    function applyConfig() {
-        document.getElementById('pageTitle').textContent  = `업무 스케줄러 - ${SCHOOL}`;
-        document.getElementById('headerSchool').textContent = `${SCHOOL} 업무 수첩`;
-        document.getElementById('cfgSchool').value = SCHOOL;
-        document.getElementById('cfgUrl').value    = SCRIPT_URL;
-    }
-
-    function saveConfig() {
-        const school = document.getElementById('cfgSchool').value.trim();
-        const url    = document.getElementById('cfgUrl').value.trim();
-        if (!school) { toast('학교명을 입력하세요.', 'error'); return; }
-        if (!url.startsWith('https://script.google.com')) { toast('올바른 Apps Script URL을 입력하세요.', 'error'); return; }
-        SCHOOL     = school;
-        SCRIPT_URL = url;
-        localStorage.setItem('sched_school', SCHOOL);
-        localStorage.setItem('sched_url',    SCRIPT_URL);
-        applyConfig();
-        toast('✅ 설정이 저장되었습니다!', 'success');
-        toggleConfig();
-        fetchData();
-    }
-
-    function toggleConfig() {
-        const card      = document.getElementById('configCard');
-        const collapsed = document.getElementById('configCollapsed');
-        const isOpen    = card.style.display !== 'none';
-        card.style.display      = isOpen ? 'none' : '';
-        collapsed.style.display = isOpen ? '' : 'none';
-    }
+    
 
     /* ══════════════════════════════════════════════
        앱 상태
@@ -559,21 +494,23 @@
     }
 
     /* ── 데이터 로드 ── */
-    async function fetchData(){
+    async function fetchData(goLast=false){
         $('loading').style.display='block';
         try{
             const data=await rpc({action:'read'});
             if(!Array.isArray(data)) throw new Error('배열이 아닌 응답');
             allData=data; log(`${data.length}건 수신`,'ok');
-            const totalPg=Math.max(1,Math.ceil(filtered().length/PAGE_SIZE));
-            page=totalPg;
+            if(goLast){
+                const totalPg=Math.max(1,Math.ceil(filtered().length/PAGE_SIZE));
+                page=totalPg;
+            }
             render();
         }catch(e){
             log('조회 실패: '+e.message,'err');
             $('tBody').innerHTML=`<tr><td colspan="8" style="text-align:center;color:#fa5252;padding:24px;">
                 <i class="fas fa-triangle-exclamation"></i> 데이터 로드 실패<br>
                 <small style="color:#adb5bd;">${e.message}</small><br>
-                <small style="color:#adb5bd;">상단 <b>학교 설정</b>에서 URL을 확인하세요.</small></td></tr>`;
+                <small style="color:#adb5bd;">SCRIPT_URL을 확인하세요.</small></td></tr>`;
             toast('데이터 로드 실패','error');
             if(!dbgVisible) toggleDebug();
         }finally{$('loading').style.display='none';}
@@ -653,14 +590,9 @@
 
     /* ── 초기화 ── */
     window.onload = function(){
-        applyConfig();
-        // 설정이 이미 있으면 설정창 접기
-        if(localStorage.getItem('sched_url')) toggleConfig();
+                // 설정이 이미 있으면 설정창 접기
         fetchData();
     };
 </script>
 </body>
 </html>
-
-
-
