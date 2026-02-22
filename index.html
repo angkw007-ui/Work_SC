@@ -131,9 +131,9 @@
         #pageInfo { text-align: center; font-size: 12px; color: #adb5bd; margin-top: 6px; }
 
         /* 모달 */
-        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 50px; }
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 50px; overflow-y: auto; }
         .modal-bg.open { display: flex; }
-        .modal { background: white; border-radius: 14px; padding: 26px; width: 92%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal { background: white; border-radius: 14px; padding: 26px; width: 92%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; margin: auto; }
         .modal h3 { margin: 0 0 18px; font-size: 17px; color: #343a40; display: flex; align-items: center; gap: 8px; }
         .modal-footer { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
         .btn-cancel { background: #f1f3f5; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; font-family: inherit; font-weight: 600; color: #495057; }
@@ -154,7 +154,102 @@
         .log-ok { color: #40c057; } .log-err { color: #fa5252; } .log-info { color: #228be6; }
         #loading { text-align: center; padding: 20px; font-size: 14px; color: #868e96; display: none; }
 
+        /* 상세보기 모달 */
+        .detail-modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1001; justify-content: center; align-items: center; padding: 20px; }
+        .detail-modal-bg.open { display: flex; }
+        .detail-modal { background: white; border-radius: 12px; padding: 24px; width: 95%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .detail-modal h3 { margin: 0 0 16px; font-size: 18px; color: #343a40; border-bottom: 2px solid #40c057; padding-bottom: 10px; }
+        .detail-row { margin-bottom: 14px; }
+        .detail-label { font-size: 11px; font-weight: 700; color: #868e96; text-transform: uppercase; margin-bottom: 4px; }
+        .detail-value { font-size: 14px; color: #343a40; background: #f8f9fa; padding: 10px 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-word; }
+        .detail-close-btn { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; }
+        .detail-close-btn:hover { background: var(--primary-hover); }
+
         footer { text-align: center; padding: 20px 0 10px; font-size: 12px; color: #adb5bd; }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+            body { padding: 10px 10px 50px; }
+            .page-header h1 { font-size: 20px; }
+            .page-header p { font-size: 12px; }
+            .card { padding: 16px; margin-bottom: 12px; border-radius: 10px; }
+            h2 { font-size: 15px; margin-bottom: 12px; }
+            
+            /* 달력 - 모바일에서는 현재달만 */
+            .calendars-wrapper { grid-template-columns: 1fr; }
+            .mini-calendar.side { display: none; }
+            .calendar-nav-btn { width: 32px; height: 32px; font-size: 14px; }
+            .mini-calendar-header { font-size: 14px; }
+            .mini-day { font-size: 11px; }
+            
+            /* 폼 */
+            .form-grid { grid-template-columns: 1fr; gap: 10px; }
+            .config-grid { grid-template-columns: 1fr; }
+            input[type=text], input[type=date], textarea { font-size: 16px; padding: 12px; }
+            
+            /* 툴바 */
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar h2 { width: 100%; }
+            .toolbar > div { width: 100%; display: flex; gap: 6px; flex-wrap: wrap; }
+            .toolbar-btn { flex: 1; min-width: 70px; font-size: 12px; padding: 8px 10px; }
+            
+            /* 검색 */
+            .toolbar + div { flex-direction: column; align-items: stretch !important; }
+            .toolbar + div > div:first-child { max-width: 100% !important; }
+            #clearBtn, #searchResult { width: 100%; text-align: center; }
+            
+            /* 테이블 - 모바일 카드형 */
+            .table-wrap { overflow-x: visible; }
+            table { min-width: 100%; display: block; }
+            thead { display: none; }
+            tbody { display: block; }
+            tr { display: block; background: #f8f9fa; margin-bottom: 12px; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+            tr:hover td { background: transparent; }
+            td { display: block; padding: 6px 0; border: none; max-width: 100% !important; white-space: normal !important; }
+            td::before { content: attr(data-label); font-weight: 700; font-size: 11px; color: #868e96; text-transform: uppercase; display: block; margin-bottom: 3px; }
+            td:first-child { display: none; } /* 번호 숨김 */
+            td.content-cell, td.memo-cell { white-space: pre-wrap !important; overflow: visible !important; text-overflow: clip !important; }
+            
+            /* 업무제목 클릭 가능하게 */
+            .mobile-title-btn { 
+                background: none; 
+                border: none; 
+                padding: 8px 12px; 
+                text-align: left; 
+                width: 100%; 
+                cursor: pointer; 
+                font-size: 15px; 
+                font-weight: 700; 
+                color: #2f9e44; 
+                border-radius: 6px; 
+                transition: background 0.2s;
+                margin: -8px -12px;
+                font-family: inherit;
+            }
+            .mobile-title-btn:hover { background: #e9faf0; }
+            
+            /* 모바일에서 업무메모 숨김 (제목 클릭으로 대체) */
+            .hide-on-mobile { display: none !important; }
+            
+            /* 액션 버튼 */
+            td:last-child { display: flex; gap: 6px; margin-top: 8px; }
+            .act-btn { flex: 1; padding: 8px; font-size: 12px; }
+            
+            /* 모달 */
+            .modal-bg { padding-top: 20px; align-items: flex-start; }
+            .modal { padding: 20px; max-height: 85vh; }
+            .modal h3 { font-size: 16px; }
+            .modal-footer { flex-direction: column; }
+            .btn-cancel, .btn-save { width: 100%; padding: 12px; }
+            
+            /* 페이지네이션 */
+            .pg-btn { padding: 6px 9px; font-size: 12px; min-width: 30px; }
+            #pageInfo { font-size: 11px; }
+            
+            /* 상세보기 모달 */
+            .detail-modal { padding: 20px; max-height: 85vh; }
+            .detail-modal h3 { font-size: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -171,15 +266,15 @@
                 <input type="text" id="eDocNum" placeholder="중등교육과-001">
             </div>
             <div class="input-group">
-                <label>공문제목 <span style="color:#fa5252;">*</span></label>
+                <label>업무제목 <span style="color:#fa5252;">*</span></label>
                 <input type="text" id="eTitle">
             </div>
             <div class="input-group">
-                <label>제출마감일</label>
+                <label>완료요청일</label>
                 <input type="date" id="eDueDate">
             </div>
             <div class="input-group">
-                <label>제출일(완료일)</label>
+                <label>완료일</label>
                 <input type="date" id="eSubmitDate">
             </div>
         </div>
@@ -208,6 +303,36 @@
             <button class="btn-cancel" onclick="closeModal()">취소</button>
             <button class="btn-save" onclick="saveEdit()"><i class="fas fa-save"></i> 저장</button>
         </div>
+    </div>
+</div>
+
+<!-- ══════════════ 상세보기 모달 ══════════════ -->
+<div class="detail-modal-bg" id="detailModal">
+    <div class="detail-modal">
+        <h3 id="detailTitle"></h3>
+        <div class="detail-row">
+            <div class="detail-label">공문번호</div>
+            <div class="detail-value" id="detailDocNum"></div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">업무메모</div>
+            <div class="detail-value" id="detailContent"></div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">완료요청일</div>
+            <div class="detail-value" id="detailDueDate"></div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">완료일</div>
+            <div class="detail-value" id="detailSubmitDate"></div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">비고</div>
+            <div class="detail-value" id="detailMemo"></div>
+        </div>
+        <button class="detail-close-btn" onclick="closeDetailModal()">
+            <i class="fas fa-xmark"></i> 닫기
+        </button>
     </div>
 </div>
 
@@ -253,11 +378,11 @@
                     <input type="text" id="docNum" name="docNum" placeholder="예: 중등교육과-001">
                 </div>
                 <div class="input-group">
-                    <label>공문제목 <span style="color:#fa5252;">*</span></label>
-                    <input type="text" id="title" name="title" placeholder="공문 제목 입력" required>
+                    <label>업무제목 <span style="color:#fa5252;">*</span></label>
+                    <input type="text" id="title" name="title" placeholder="업무제목 입력" required>
                 </div>
                 <div class="input-group">
-                    <label>제출마감일 <span style="opacity:.5;font-weight:400;">(선택)</span></label>
+                    <label>완료요청일 <span style="opacity:.5;font-weight:400;">(선택)</span></label>
                     <input type="date" id="dueDate" name="dueDate">
                 </div>
                 <div class="input-group">
@@ -311,7 +436,7 @@
             <h2 style="margin:0;"><i class="fas fa-list-check" style="color:var(--primary);"></i> 업무 추진 현황</h2>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                 <button class="toolbar-btn active" id="filterAll" onclick="setFilter('all')">전체</button>
-                <button class="toolbar-btn" id="filterPending" onclick="setFilter('pending')">미제출</button>
+                <button class="toolbar-btn" id="filterPending" onclick="setFilter('pending')">미완료</button>
                 <button class="toolbar-btn" id="filterDone" onclick="setFilter('done')">완료</button>
                 <button class="toolbar-btn" onclick="fetchData()"><i class="fas fa-rotate-right"></i> 새로고침</button>
                 <button class="toolbar-btn" id="debugBtn" onclick="toggleDebug()"><i class="fas fa-bug"></i></button>
@@ -322,7 +447,7 @@
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
             <div style="position:relative;flex:1;max-width:420px;">
                 <i class="fas fa-magnifying-glass" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#adb5bd;font-size:14px;pointer-events:none;"></i>
-                <input type="text" id="searchInput" placeholder="공문제목 또는 업무메모로 검색..."
+                <input type="text" id="searchInput" placeholder="업무제목 또는 업무메모로 검색..."
                     style="padding:9px 12px 9px 36px;border:1.5px solid #dee2e6;border-radius:8px;font-size:14px;font-family:inherit;width:100%;background:#fafafa;transition:border-color 0.2s;"
                     oninput="onSearch()" onfocus="this.style.borderColor='#40c057'" onblur="this.style.borderColor='#dee2e6'">
             </div>
@@ -339,12 +464,12 @@
                     <tr>
                         <th style="width:38px;">#</th>
                         <th style="width:120px;">공문번호</th>
-                        <th style="min-width:160px;">공문제목</th>
+                        <th style="min-width:160px;">업무제목</th>
                         <th style="min-width:260px;">업무메모,제출내용</th>
                         <th class="sortable" id="thDue" onclick="toggleSort()" style="width:140px;">
-                            제출마감일 <span id="sortIcon">▲</span>
+                            완료요청일 <span id="sortIcon">▲</span>
                         </th>
-                        <th style="width:140px;">제출일(완료일)</th>
+                        <th style="width:140px;">완료일</th>
                         <th style="width:90px;">비고</th>
                         <th style="width:80px;">관리</th>
                     </tr>
@@ -354,7 +479,7 @@
         </div>
         <div style="margin-top:8px;font-size:12px;color:#adb5bd;display:flex;align-items:center;gap:5px;">
             <i class="fas fa-circle-info" style="color:#74c0fc;"></i>
-            공문은 <strong style="color:#495057;">제출마감일 순</strong>으로 자동 정렬됩니다. 마감일 헤더 클릭 시 오름차순/내림차순 전환됩니다.
+            업무는 <strong style="color:#495057;">완료요청일 순</strong>으로 자동 정렬됩니다. 완료요청일 헤더 클릭 시 오름차순/내림차순 전환됩니다.
         </div>
         <div class="pagination" id="pagination"></div>
         <div id="pageInfo"></div>
@@ -378,7 +503,8 @@
     let currentMonth = new Date().getMonth(); // 0-11
 
     const $ = id => document.getElementById(id);
-    const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
+    const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\\\'");
+    const isMobile = () => window.innerWidth <= 768;
 
     // 요일 표시 함수
     function formatDateWithDay(dateStr) {
@@ -448,7 +574,7 @@
         const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
-        // 제출마감일 맵 생성
+        // 완료요청일 맵 생성
         const dueDateMap = {};
         allData.forEach(row => {
             if (row.dueDate && row.dueDate.trim()) {
@@ -539,17 +665,40 @@
     function clickDate(dateStr) {
         const tasks = allData.filter(r => r.dueDate === dateStr);
         if (tasks.length === 0) {
-            toast(`${dateStr}에 마감인 업무가 없습니다.`, '');
+            toast(`${dateStr}에 완료요청인 업무가 없습니다.`, '');
             return;
         }
         
-        let msg = `📅 ${dateStr} 제출마감\n\n`;
+        let msg = `📅 ${dateStr} 완료요청일\\n\\n`;
         tasks.forEach((t, i) => {
             const status = (t.submitDate && t.submitDate.trim()) ? '✅' : '⏰';
-            msg += `${i+1}. ${status} ${t.title}\n`;
+            msg += `${i+1}. ${status} ${t.title}\\n`;
         });
         alert(msg);
     }
+
+    /* ── 상세보기 모달 ── */
+    function showDetail(rowNum) {
+        const row = allData.find(r => r.rowNum === rowNum);
+        if (!row) return;
+        
+        $('detailTitle').innerHTML = `<i class="fas fa-file-lines" style="color:var(--primary);"></i> ${safe(row.title)}`;
+        $('detailDocNum').textContent = row.docNum || '-';
+        $('detailContent').textContent = row.content || '-';
+        $('detailDueDate').textContent = formatDateWithDay(row.dueDate);
+        $('detailSubmitDate').textContent = row.submitDate ? formatDateWithDay(row.submitDate) : '미완료';
+        $('detailMemo').textContent = row.memo || '-';
+        
+        $('detailModal').classList.add('open');
+    }
+
+    function closeDetailModal() {
+        $('detailModal').classList.remove('open');
+    }
+
+    $('detailModal').addEventListener('click', e => {
+        if (e.target === $('detailModal')) closeDetailModal();
+    });
 
     /* ── 라디오 동기화 ── */
     document.querySelectorAll('input[name="contentType"]').forEach(r=>
@@ -649,7 +798,7 @@
                 dueCss=diff<0?'color:#e03131;font-weight:700;':diff<=3?'color:#f76707;font-weight:700;':'';
             }
             
-            // 태그 생성 (공문제목 옆에 표시)
+            // 태그 생성 (업무제목 옆에 표시)
             const isReq=(row.contentType==='필수');
             const tag = row.content
                 ? (isReq ? '<span class="tag-req">필수</span>' : '<span class="tag-opt">선택</span>')
@@ -657,24 +806,29 @@
             
             // 내용은 태그 없이
             const contentHtml = row.content
-                ? (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
+                ? (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\\n/g,'<br>'))
                 : '-';
 
             const dueDateStr = formatDateWithDay(row.dueDate);
             const submitDateStr = done ? formatDateWithDay(row.submitDate) : '';
 
+            // 모바일에서 업무제목 클릭 가능하게
+            const titleHtml = isMobile() 
+                ? `<button class="mobile-title-btn" onclick="showDetail(${row.rowNum})">${safe(row.title)}${tag}</button>`
+                : `<strong>${safe(row.title)}</strong>${tag}`;
+
             tr.innerHTML=`
-                <td style="color:#adb5bd;text-align:center;vertical-align:middle;">${start+i+1}</td>
-                <td style="font-size:12px;color:#868e96;vertical-align:middle;">${safe(row.docNum)||'-'}</td>
-                <td style="vertical-align:middle;"><strong>${safe(row.title)}</strong>${tag}</td>
-                <td class="content-cell">${contentHtml}</td>
-                <td style="${dueCss}vertical-align:middle;">${dueDateStr}</td>
-                <td style="vertical-align:middle;">${done
+                <td data-label="#" style="color:#adb5bd;text-align:center;vertical-align:middle;">${start+i+1}</td>
+                <td data-label="공문번호" style="font-size:12px;color:#868e96;vertical-align:middle;">${safe(row.docNum)||'-'}</td>
+                <td data-label="업무제목" style="vertical-align:middle;">${titleHtml}</td>
+                <td data-label="업무메모" class="content-cell ${isMobile()?'hide-on-mobile':''}">${contentHtml}</td>
+                <td data-label="완료요청일" style="${dueCss}vertical-align:middle;">${dueDateStr}</td>
+                <td data-label="완료일" style="vertical-align:middle;">${done
                     ?`<span class="badge badge-done"><i class="fas fa-check"></i> ${submitDateStr}</span>`
-                    :`<button class="badge badge-pending" onclick="markDone(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-clock"></i> 미제출</button>`}
+                    :`<button class="badge badge-pending" onclick="markDone(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-clock"></i> 미완료</button>`}
                 </td>
-                <td class="memo-cell" title="${safe(row.memo)||''}">${safe(row.memo)||'-'}</td>
-                <td style="text-align:center;vertical-align:middle;white-space:nowrap;">
+                <td data-label="비고" class="memo-cell" title="${safe(row.memo)||''}">${safe(row.memo)||'-'}</td>
+                <td data-label="관리" style="text-align:center;vertical-align:middle;white-space:nowrap;">
                     <button class="act-btn edit" onclick="openEdit(${row.rowNum})"><i class="fas fa-pen"></i></button>
                     <button class="act-btn del" style="margin-left:3px;" onclick="delRow(${row.rowNum},'${safe(row.title)}')"><i class="fas fa-trash"></i></button>
                 </td>`;
@@ -759,15 +913,15 @@
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> 업무 등록하기';}
     };
 
-    /* ── 제출일 입력 ── */
+    /* ── 완료일 입력 ── */
     async function markDone(rowNum,title){
         const today=new Date().toISOString().split('T')[0];
-        const date=prompt(`[${title}]\n제출 완료 날짜 입력 (YYYY-MM-DD)`,today);
+        const date=prompt(`[${title}]\\n완료 날짜 입력 (YYYY-MM-DD)`,today);
         if(!date) return;
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast('날짜 형식 오류','error');return;}
+        if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){toast('날짜 형식 오류','error');return;}
         try{
             const r=await rpc({action:'update',rowNum,submitDate:date});
-            toast(isOk(r)?'✅ 제출일 기록!':'처리됐을 수 있습니다.',isOk(r)?'success':'');
+            toast(isOk(r)?'✅ 완료일 기록!':'처리됐을 수 있습니다.',isOk(r)?'success':'');
             await fetchData();
         }catch(err){toast('업데이트 실패','error');}
     }
@@ -792,7 +946,7 @@
 
     async function saveEdit(){
         const title=$('eTitle').value.trim();
-        if(!title){toast('공문제목은 필수입니다.','error');return;}
+        if(!title){toast('업무제목은 필수입니다.','error');return;}
         const p={action:'edit',rowNum:$('eRowNum').value,docNum:$('eDocNum').value.trim(),
             title,dueDate:$('eDueDate').value,submitDate:$('eSubmitDate').value,
             content:$('eContent').value.trim(),contentType:$('eContentType').value,
@@ -807,7 +961,7 @@
 
     /* ── 삭제 ── */
     async function delRow(rowNum,title){
-        if(!confirm(`[${title}]\n삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+        if(!confirm(`[${title}]\\n삭제하시겠습니까?\\n이 작업은 되돌릴 수 없습니다.`)) return;
         try{
             const r=await rpc({action:'delete',rowNum});
             toast(isOk(r)?'🗑️ 삭제되었습니다.':'삭제됐을 수 있습니다.',isOk(r)?'success':'');
@@ -823,6 +977,3 @@
 </script>
 </body>
 </html>
-
-
-이제 공문제목 옆에 **[필수]** 또는 **[선택]** 태그가 표시되고, 라디오 버튼 순서도 **필수/선택**으로 변경되었습니다! 🎉✨
