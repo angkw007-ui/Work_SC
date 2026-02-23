@@ -503,7 +503,7 @@
     let currentMonth = new Date().getMonth(); // 0-11
 
     const $ = id => document.getElementById(id);
-    const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\\\'");
+    const safe = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,"\\'");
     const isMobile = () => window.innerWidth <= 768;
 
     // 요일 표시 함수
@@ -669,10 +669,10 @@
             return;
         }
         
-        let msg = `📅 ${dateStr} 완료요청일\\n\\n`;
+        let msg = `📅 ${dateStr} 완료요청일\n\n`;
         tasks.forEach((t, i) => {
             const status = (t.submitDate && t.submitDate.trim()) ? '✅' : '⏰';
-            msg += `${i+1}. ${status} ${t.title}\\n`;
+            msg += `${i+1}. ${status} ${t.title}\n`;
         });
         alert(msg);
     }
@@ -806,7 +806,7 @@
             
             // 내용은 태그 없이
             const contentHtml = row.content
-                ? (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\\n/g,'<br>'))
+                ? (row.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>'))
                 : '-';
 
             const dueDateStr = formatDateWithDay(row.dueDate);
@@ -914,16 +914,22 @@
     };
 
     /* ── 완료일 입력 ── */
-    async function markDone(rowNum,title){
-        const today=new Date().toISOString().split('T')[0];
-        const date=prompt(`[${title}]\\n완료 날짜 입력 (YYYY-MM-DD)`,today);
-        if(!date) return;
-        if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){toast('날짜 형식 오류','error');return;}
-        try{
-            const r=await rpc({action:'update',rowNum,submitDate:date});
-            toast(isOk(r)?'✅ 완료일 기록!':'처리됐을 수 있습니다.',isOk(r)?'success':'');
+    async function markDone(rowNum, title) {
+        const today = new Date().toISOString().split('T')[0];
+        const date = prompt(`[${title}]\n완료 날짜 입력 (YYYY-MM-DD)`, today);
+        if (!date) return;
+        // ✅ 수정: 정규식 이스케이프 오류 수정 (\d 가 올바르게 동작하도록)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            toast('날짜 형식 오류 (YYYY-MM-DD)', 'error');
+            return;
+        }
+        try {
+            const r = await rpc({action:'update', rowNum, submitDate: date});
+            toast(isOk(r) ? '✅ 완료일 기록!' : '처리됐을 수 있습니다.', isOk(r) ? 'success' : '');
             await fetchData();
-        }catch(err){toast('업데이트 실패','error');}
+        } catch(err) {
+            toast('업데이트 실패', 'error');
+        }
     }
 
     /* ── 수정 모달 ── */
@@ -960,13 +966,15 @@
     }
 
     /* ── 삭제 ── */
-    async function delRow(rowNum,title){
-        if(!confirm(`[${title}]\\n삭제하시겠습니까?\\n이 작업은 되돌릴 수 없습니다.`)) return;
-        try{
-            const r=await rpc({action:'delete',rowNum});
-            toast(isOk(r)?'🗑️ 삭제되었습니다.':'삭제됐을 수 있습니다.',isOk(r)?'success':'');
+    async function delRow(rowNum, title) {
+        if (!confirm(`[${title}]\n삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+        try {
+            const r = await rpc({action:'delete', rowNum});
+            toast(isOk(r) ? '🗑️ 삭제되었습니다.' : '삭제됐을 수 있습니다.', isOk(r) ? 'success' : '');
             await fetchData();
-        }catch(err){toast('삭제 실패','error');}
+        } catch(err) {
+            toast('삭제 실패', 'error');
+        }
     }
 
     /* ── 초기화 ── */
